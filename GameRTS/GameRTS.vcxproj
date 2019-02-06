@@ -172,6 +172,7 @@
     <ClCompile Include="Source\Externals\imgui.cpp" />
     <ClCompile Include="Source\Externals\imgui_demo.cpp" />
     <ClCompile Include="Source\Externals\imgui_draw.cpp" />
+    <ClCompile Include="Source\Externals\imgui_widgets.cpp" />
     <ClCompile Include="Source\main.cpp" />
     <ClCompile Include="Source\RTSApplication.cpp" />
     <ClCompile Include="Source\RTSConfig.cpp" />

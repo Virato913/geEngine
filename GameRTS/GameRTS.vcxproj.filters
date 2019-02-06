@@ -14,18 +14,6 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Source\Externals\imgui.cpp">
-      <Filter>Source Files\Externals</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Externals\imgui_demo.cpp">
-      <Filter>Source Files\Externals</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Externals\imgui_draw.cpp">
-      <Filter>Source Files\Externals</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Externals\imgui-SFML.cpp">
-      <Filter>Source Files\Externals</Filter>
-    </ClCompile>
     <ClCompile Include="Source\RTSUnitType.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -46,6 +34,21 @@
     </ClCompile>
     <ClCompile Include="Source\RTSWorld.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Externals\imgui.cpp">
+      <Filter>Source Files\Externals</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Externals\imgui_demo.cpp">
+      <Filter>Source Files\Externals</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Externals\imgui_draw.cpp">
+      <Filter>Source Files\Externals</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Externals\imgui_widgets.cpp">
+      <Filter>Source Files\Externals</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Externals\imgui-SFML.cpp">
+      <Filter>Source Files\Externals</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

@@ -5,7 +5,7 @@
 
 RTSWorld::RTSWorld() {
   m_pTiledMap = nullptr;
-  m_activeWalkerIndex = -1;	//-1 = Invalid index
+  m_activeWalkerIndex = - 1;	//-1 = Invalid index
 }
 
 RTSWorld::~RTSWorld() {

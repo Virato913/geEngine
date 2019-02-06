@@ -114,19 +114,50 @@ RTSApplication::destroySystems() {
 
 void
 RTSApplication::gameLoop() {
-  if (nullptr == m_window) {  //Windows not yet initialized
+  if(nullptr == m_window) {  //Windows not yet initialized
     return; //Shouldn't do anything
   }
 
   postInit();
 
-  while (m_window->isOpen()) {
+  while(m_window->isOpen()) {
     sf::Event event;
-    while (m_window->pollEvent(event)) {
+    while(m_window->pollEvent(event)) {
       ImGui::SFML::ProcessEvent(event);
-      
-      if (event.type == sf::Event::Closed) {
+      if(event.type == sf::Event::Closed) {
         m_window->close();
+      }
+      if(sf::Mouse::isButtonPressed(sf::Mouse::Left) &&
+                  !ImGui::IsMouseHoveringAnyWindow() &&
+                  !ImGui::IsAnyWindowFocused())
+      {
+        int32 _x = 0;
+        int32 _y = 0;
+        auto map = m_gameWorld.getTiledMap();
+        sf::Vector2i mousePos = sf::Mouse::getPosition();
+        map->getScreenToMapCoords(mousePos.x, mousePos.y, _x, _y);
+        if(GameOptions::s_Terrain >= 0)
+        {
+          for(int32 i = _x - (GameOptions::s_BrushSize - 1) - 1;
+            i < _x + (GameOptions::s_BrushSize - 1);
+            i++)
+          {
+            for(int32 j = _y - (GameOptions::s_BrushSize - 1) - 1;
+              j < _y + (GameOptions::s_BrushSize - 1);
+              j++)
+            {
+              if((i >= -1 && i < map->getMapSize().x - 1) &&
+                (j >= -1 && j < map->getMapSize().x - 1))
+              {
+                  map->setType(i + 1, j + 1, GameOptions::s_Terrain);
+              }
+            }
+          }
+        }
+        if(GameOptions::s_PathState >= 0)
+        {
+          //TODO: Set start and end tiles
+        }
       }
     }
 
@@ -153,7 +184,7 @@ RTSApplication::updateFrame() {
   m_fpsCounter += 1.0f;
 
   //Update the interface
-  ImGui::SFML::Update(*m_window, deltaTime);
+  ImGui::SFML::Update(*m_window, sf::seconds(deltaTime));
 
   //Begin the menu 
   mainMenu(this);
@@ -173,7 +204,7 @@ RTSApplication::updateFrame() {
     axisMovement += Vector2(-1.f, 0.f);
 #endif
   }
-  if (GameOptions::s_Resolution.x -1 == mousePosition.x ||
+  if (GameOptions::s_Resolution.x - 1 == mousePosition.x ||
       sf::Keyboard::isKeyPressed(sf::Keyboard::D) ||
       sf::Keyboard::isKeyPressed(sf::Keyboard::Right)) {
 #ifdef MAP_IS_ISOMETRIC
@@ -278,27 +309,28 @@ loadMapFromFile(RTSApplication* pApp) {
 
 void
 mainMenu(RTSApplication* pApp) {
-  if (ImGui::BeginMainMenuBar()) {
-    if (ImGui::BeginMenu("Map")) {
-      if (ImGui::MenuItem("Load...", "CTRL+O")) {
+  if(ImGui::BeginMainMenuBar()) {
+    if(ImGui::BeginMenu("Map")) {
+      if(ImGui::MenuItem("Load...", "CTRL+O")) {
         loadMapFromFile(pApp);
       }
-      if (ImGui::MenuItem("Save...", "CTRL+S")) {
+      if(ImGui::MenuItem("Save...", "CTRL+S")) {
 
       }
       ImGui::Separator();
 
-      if (ImGui::MenuItem("Quit", "CTRL+Q")) {
+      if(ImGui::MenuItem("Quit", "CTRL+Q")) {
         pApp->getRenderWindow()->close();
       }
 
       ImGui::EndMenu();
     }
-    
+
     ImGui::EndMainMenuBar();
   }
 
-  ImGui::Begin("Game Options");
+  ImGui::Begin("Game Options", 0, ImGuiWindowFlags_AlwaysAutoResize |
+                                  ImGuiWindowFlags_NoResize);
   {
     ImGui::Text("Framerate: %f", pApp->getFPS());
 
@@ -312,7 +344,26 @@ mainMenu(RTSApplication* pApp) {
       10240.0f);
 
     ImGui::Checkbox("Show grid", &GameOptions::s_MapShowGrid);
+
+    ImGui::Checkbox("Terrain Editor", &GameOptions::s_Editor);
   }
   ImGui::End();
 
+  if(GameOptions::s_Editor)
+  {
+    ImGui::Begin("Terrain Editor", 0, ImGuiWindowFlags_AlwaysAutoResize |
+                                      ImGuiWindowFlags_NoResize);
+    {
+      ImGui::SliderInt("Brush Size", &GameOptions::s_BrushSize, 1, 10);
+      ImGui::RadioButton("Water", &GameOptions::s_Terrain, 0);
+      ImGui::RadioButton("Grass", &GameOptions::s_Terrain, 1);
+      ImGui::RadioButton("Marsh", &GameOptions::s_Terrain, 2);
+      ImGui::RadioButton("Obstacle", &GameOptions::s_Terrain, 3);
+    }
+    ImGui::End();
+  }
+  else
+  {
+    GameOptions::s_Terrain = -1;
+  }
 }
