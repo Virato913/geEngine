@@ -157,6 +157,7 @@ RTSApplication::gameLoop() {
         if(GameOptions::s_PathState >= 0)
         {
           //TODO: Set start and end tiles
+
         }
       }
     }

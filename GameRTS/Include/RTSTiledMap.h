@@ -24,6 +24,7 @@ namespace TERRAIN_TYPE {
 
 class RTSTiledMap
 {
+ public:
   class MapTile
   {
    public:
