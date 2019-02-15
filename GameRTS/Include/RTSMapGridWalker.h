@@ -3,9 +3,11 @@
 #include "gePrerequisitesUtil.h"
 #include "geVector2I.h"
 
+#include "RTSTiledMap.h"
+
 using namespace geEngineSDK;
 
-class RTSTiledMap;
+//class RTSTiledMap;
 //class RTSTexture;
 
 namespace WALK_STATE {
@@ -41,8 +43,8 @@ class RTSMapGridWalker
  protected:
   virtual void visitGridNode(int32 x, int32 y) = 0;
 
- private:
+ protected:
   RTSTiledMap* m_pTiledMap;
   int32 m_StartX, m_StartY;
-  int32 m_EndX, m_StartY;
+  int32 m_EndX, m_EndY;
 };

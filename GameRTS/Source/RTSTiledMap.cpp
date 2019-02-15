@@ -152,6 +152,12 @@ RTSTiledMap::getMapToScreenCoords(const int32 mapX,
 }
 
 void
+RTSTiledMap::getMapGrid(Vector<RTSMapTile>& mapGrid)
+{
+  m_mapGrid = mapGrid;
+}
+
+void
 RTSTiledMap::update(float deltaTime) {
   GE_UNREFERENCED_PARAMETER(deltaTime);
 }
@@ -257,28 +263,6 @@ RTSTiledMap::render() {
 
     m_pTarget->draw(&gridLines[0], gridLines.size(), sf::Lines);
   }
-}
-
-RTSTiledMap::MapTile::MapTile() {
-  m_idType = 1;
-  m_cost = 1;
-}
-
-RTSTiledMap::MapTile::MapTile(const int8 idType, const int8 cost) {
-  m_idType = idType;
-  m_cost = cost;
-}
-
-RTSTiledMap::MapTile::MapTile(const MapTile& copy) {
-  m_idType = copy.m_idType;
-  m_cost = copy.m_cost;
-}
-
-RTSTiledMap::MapTile&
-RTSTiledMap::MapTile::operator=(const MapTile& rhs) {
-  m_idType = rhs.m_idType;
-  m_cost = rhs.m_cost;
-  return *this;
 }
 
 bool

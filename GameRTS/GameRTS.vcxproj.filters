@@ -56,6 +56,9 @@
     <ClCompile Include="Source\RTSBreadthFirstSearchMapGridWalker.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Source\RTSMapTile.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Include\RTSUnitType.h">
@@ -80,6 +83,9 @@
       <Filter>Source Files</Filter>
     </ClInclude>
     <ClInclude Include="Include\RTSBreadthFirstSearchMapGridWalker.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Include\RTSMapTile.h">
       <Filter>Source Files</Filter>
     </ClInclude>
   </ItemGroup>

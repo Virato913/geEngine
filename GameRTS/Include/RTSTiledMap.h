@@ -4,12 +4,15 @@
 #include <geVector2.h>
 #include <geVector2I.h>
 
+#include "RTSMapTile.h"
+
 #include <SFML/Graphics.hpp>
 
 #include "RTSConfig.h"
 
 using namespace geEngineSDK;
 
+class RTSMapTile;
 class RTSTexture;
 
 namespace TERRAIN_TYPE {
@@ -24,42 +27,6 @@ namespace TERRAIN_TYPE {
 
 class RTSTiledMap
 {
- public:
-  class MapTile
-  {
-   public:
-    MapTile();
-    MapTile(const int8 idType, const int8 cost);
-    MapTile(const MapTile& copy);
-    
-    MapTile&
-    operator=(const MapTile& rhs);
-
-    FORCEINLINE uint8
-    getType() const {
-      return m_idType;
-    }
-
-    void
-    setType(const int8 idType) {
-      m_idType = idType;
-    }
-
-    FORCEINLINE int8
-    getCost() const {
-      return m_cost;
-    }
-
-    void
-    setCost(const int8 cost) {
-      m_cost = cost;
-    }
-
-   private:
-    uint8 m_idType;
-    int8 m_cost;
-  };
-
  public:
   RTSTiledMap();
   RTSTiledMap(sf::RenderTarget* pTarget, const Vector2I& mapSize);
@@ -162,9 +129,12 @@ class RTSTiledMap
                        int32 &scrX,
                        int32 &scrY);
 
+  void
+    getMapGrid(Vector<RTSMapTile>& mapGrid);
+
  private:
   Vector2I m_mapSize;
-  Vector<MapTile> m_mapGrid;
+  Vector<RTSMapTile> m_mapGrid;
   Vector<RTSTexture> m_mapTextures;
 
   Vector2I m_iCamera;

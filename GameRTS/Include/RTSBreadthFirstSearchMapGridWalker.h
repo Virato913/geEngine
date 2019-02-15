@@ -2,11 +2,13 @@
 
 #include "gePrerequisitesUtil.h"
 #include "RTSMapGridWalker.h"
-#include "RTSTiledMap.h"
 
 using namespace geEngineSDK;
+using namespace WALK_STATE;
 
-class RTSTexture;
+//class RTSTiledMap;
+//class RTSMapTile;
+//class RTSTexture;
 
 class RTSBreadthFirstSearchMapGridWalker : public RTSMapGridWalker
 {
@@ -26,9 +28,9 @@ class RTSBreadthFirstSearchMapGridWalker : public RTSMapGridWalker
   virtual void visitGridNode(int32 x, int32 y);
 
  private:
-  queue<RTSTiledMap::MapTile*> m_Open;
-  RTSTiledMap::MapTile* m_Start;
-  RTSTiledMap::MapTile* m_N;
-  RTSTiledMap::MapTile* m_End;
-  RTSTiledMap::MapTile** m_TileGrid;
+  queue<RTSMapTile*> m_Open;
+  RTSMapTile* m_Start;
+  RTSMapTile* m_N;
+  RTSMapTile* m_End;
+  Vector<RTSMapTile> m_TileGrid;
 };
