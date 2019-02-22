@@ -3,11 +3,9 @@
 #include "gePrerequisitesUtil.h"
 #include "geVector2I.h"
 
-#include "RTSTiledMap.h"
-
 using namespace geEngineSDK;
 
-//class RTSTiledMap;
+class RTSTiledMap;
 //class RTSTexture;
 
 namespace WALK_STATE {

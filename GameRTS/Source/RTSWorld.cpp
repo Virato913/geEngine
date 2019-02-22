@@ -2,6 +2,7 @@
 #include "RTSTiledMap.h"
 
 #include "RTSUnitType.h"
+#include "RTSBreadthFirstSearchMapGridWalker.h"
 
 RTSWorld::RTSWorld() {
   m_pTiledMap = nullptr;
@@ -25,17 +26,17 @@ RTSWorld::init(sf::RenderTarget* pTarget) {
   m_pTiledMap->init(m_pTarget, Vector2I(256, 256));
 
   //Create the path finding classes and push them to the walker list
-  //m_walkersList.push_back(ge_new<RTSBreadthFirstSearchMapGridWalker>(m_pTiledMap));
+  m_walkersList.push_back(ge_new<RTSBreadthFirstSearchMapGridWalker>(m_pTiledMap));
 
   //Init the walker objects
-/*
+
   for (SIZE_T it = 0; it < m_walkersList.size(); ++it) {
     m_walkersList[it]->init();
   }
 
   //Set the first walker as the active walker
   setCurrentWalker(m_walkersList.size() > 0 ? 0 : -1);
-*/
+
 
   RTSGame::RTSUnitType unitTypes;
   unitTypes.loadAnimationData(m_pTarget, 1);
@@ -61,6 +62,7 @@ RTSWorld::destroy() {
 void
 RTSWorld::update(float deltaTime) {
   m_pTiledMap->update(deltaTime);
+  m_activeWalker->update();
 }
 
 void

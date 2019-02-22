@@ -45,10 +45,10 @@ class RTSWorld
   //List<RTSUnitType*> m_lstUnitTypes;
   //List<RTSUnit*> m_lstUnits;
   
-  //Vector<RTSMapGridWalker*> m_walkersList;
-  Vector<void*> m_walkersList;
-  //RTSMapGridWalker* m_activeWalker;
-  void* m_activeWalker;
+  Vector<RTSMapGridWalker*> m_walkersList;
+  //Vector<void*> m_walkersList;
+  RTSMapGridWalker* m_activeWalker;
+  //void* m_activeWalker;
   int8 m_activeWalkerIndex;
 
   sf::RenderTarget* m_pTarget;

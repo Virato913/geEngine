@@ -113,7 +113,8 @@
       <GenerateDebugInformation>DebugFull</GenerateDebugInformation>
     </Link>
     <PostBuildEvent>
-      <Command>$(SolutionDir)/Tools/unit_test_runner/Guitar.exe $(SolutionDir)bin/$(PlatformShortName)/$(TargetName).exe --close-timeout 5</Command>
+      <Command>
+      </Command>
       <Message>Run Unit Tests</Message>
     </PostBuildEvent>
   </ItemDefinitionGroup>
@@ -138,7 +139,8 @@
       <GenerateDebugInformation>DebugFull</GenerateDebugInformation>
     </Link>
     <PostBuildEvent>
-      <Command>$(SolutionDir)/Tools/unit_test_runner/Guitar.exe $(SolutionDir)bin/$(PlatformShortName)/$(TargetName).exe --close-timeout 5</Command>
+      <Command>
+      </Command>
       <Message>Run Unit Tests</Message>
     </PostBuildEvent>
   </ItemDefinitionGroup>
@@ -165,7 +167,8 @@
       <AdditionalDependencies>geUtility.lib;gtest.lib;gtest_main.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
-      <Command>$(SolutionDir)/Tools/unit_test_runner/Guitar.exe $(SolutionDir)bin/$(PlatformShortName)/$(TargetName).exe --close-timeout 5</Command>
+      <Command>
+      </Command>
       <Message>Run Unit Tests</Message>
     </PostBuildEvent>
   </ItemDefinitionGroup>
@@ -192,7 +195,8 @@
       <AdditionalDependencies>geUtility.lib;gtest.lib;gtest_main.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
-      <Command>$(SolutionDir)/Tools/unit_test_runner/Guitar.exe $(SolutionDir)bin/$(PlatformShortName)/$(TargetName).exe --close-timeout 5</Command>
+      <Command>
+      </Command>
       <Message>Run Unit Tests</Message>
     </PostBuildEvent>
   </ItemDefinitionGroup>

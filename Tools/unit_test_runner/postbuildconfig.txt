@@ -1,0 +1,1 @@
+$(SolutionDir)Tools/unit_test_runner/Guitar.exe $(SolutionDir)bin/$(PlatformShortName)/$(TargetName).exe --close-timeout 5

@@ -157,7 +157,15 @@ RTSApplication::gameLoop() {
         if(GameOptions::s_PathState >= 0)
         {
           //TODO: Set start and end tiles
+          if(GameOptions::s_PathState == 0)
+          {
+            //TODO: Set start
 
+          }
+          if(GameOptions::s_PathState == 1)
+          {
+            //TODO: Set end
+          }
         }
       }
     }
@@ -347,6 +355,8 @@ mainMenu(RTSApplication* pApp) {
     ImGui::Checkbox("Show grid", &GameOptions::s_MapShowGrid);
 
     ImGui::Checkbox("Terrain Editor", &GameOptions::s_Editor);
+
+    ImGui::Checkbox("Path Finder", &GameOptions::s_PathFinder);
   }
   ImGui::End();
 
@@ -366,5 +376,20 @@ mainMenu(RTSApplication* pApp) {
   else
   {
     GameOptions::s_Terrain = -1;
+  }
+
+  if(GameOptions::s_PathFinder)
+  {
+    ImGui::Begin("Path Finder", 0, ImGuiWindowFlags_AlwaysAutoResize |
+                 ImGuiWindowFlags_NoResize);
+    {
+      ImGui::RadioButton("Start", &GameOptions::s_PathState, 0);
+      ImGui::RadioButton("End", &GameOptions::s_PathState, 1);
+    }
+    ImGui::End();
+  }
+  else
+  {
+    GameOptions::s_PathState = -1;
   }
 }

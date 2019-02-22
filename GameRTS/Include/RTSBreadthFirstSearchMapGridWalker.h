@@ -7,7 +7,7 @@ using namespace geEngineSDK;
 using namespace WALK_STATE;
 
 //class RTSTiledMap;
-//class RTSMapTile;
+class RTSMapTileNode;
 //class RTSTexture;
 
 class RTSBreadthFirstSearchMapGridWalker : public RTSMapGridWalker
@@ -22,15 +22,15 @@ class RTSBreadthFirstSearchMapGridWalker : public RTSMapGridWalker
   virtual WALK_STATE::E update();
   virtual void render();
   virtual void reset();
-  virtual bool weightedGraphSupported() { return false; }
+  //virtual bool weightedGraphSupported() { return false; }
 
  protected:
   virtual void visitGridNode(int32 x, int32 y);
 
  private:
-  queue<RTSMapTile*> m_Open;
-  RTSMapTile* m_Start;
-  RTSMapTile* m_N;
-  RTSMapTile* m_End;
-  Vector<RTSMapTile> m_TileGrid;
+  Queue<RTSMapTileNode*> m_Open;
+  RTSMapTileNode* m_Start;
+  RTSMapTileNode* m_N;
+  RTSMapTileNode* m_End;
+  Vector<RTSMapTileNode*> m_TileGrid;
 };

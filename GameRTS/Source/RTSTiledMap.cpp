@@ -20,6 +20,28 @@ RTSTiledMap::~RTSTiledMap() {
   destroy();
 }
 
+RTSTiledMap::MapTile::MapTile() {
+  m_idType = 1;
+  m_cost = 1;
+}
+
+RTSTiledMap::MapTile::MapTile(const int8 idType, const int8 cost) {
+  m_idType = idType;
+  m_cost = cost;
+}
+
+RTSTiledMap::MapTile::MapTile(const MapTile& copy) {
+  m_idType = copy.m_idType;
+  m_cost = copy.m_cost;
+}
+
+RTSTiledMap::MapTile&
+RTSTiledMap::MapTile::operator=(const MapTile& rhs) {
+  m_idType = rhs.m_idType;
+  m_cost = rhs.m_cost;
+  return *this;
+}
+
 bool
 RTSTiledMap::init(sf::RenderTarget* pTarget, const Vector2I& mapSize) {
   if (m_mapGrid.size()) {
@@ -43,6 +65,10 @@ RTSTiledMap::init(sf::RenderTarget* pTarget, const Vector2I& mapSize) {
 #endif
     m_mapTextures[i].loadFromFile(m_pTarget, textureName);
   }
+
+  m_flagTextures.resize(2);
+  m_flagTextures[0].loadFromFile(pTarget, "Textures/Flags/flag0.png");
+  m_flagTextures[1].loadFromFile(pTarget, "Textures/Flags/flag1.png");
 
   preCalc();
 
@@ -152,7 +178,7 @@ RTSTiledMap::getMapToScreenCoords(const int32 mapX,
 }
 
 void
-RTSTiledMap::getMapGrid(Vector<RTSMapTile>& mapGrid)
+RTSTiledMap::getMapGrid(Vector<MapTile>& mapGrid)
 {
   m_mapGrid = mapGrid;
 }
@@ -206,6 +232,25 @@ RTSTiledMap::render() {
     }
   }
   
+  if(GameOptions::s_PathFinder)
+  {
+    getMapToScreenCoords(0, 0, tmpX, tmpY);
+    if(!(tmpX > m_scrEnd.x ||
+         tmpY > m_scrEnd.y ||
+         (tmpX + TILESIZE_X) < m_scrStart.x ||
+         (tmpY + TILESIZE_X) < m_scrStart.y))
+    {
+      RTSTexture& refTexture = m_flagTextures[(0 + 0) % 2];
+      refTexture.setPosition(tmpX + TILESIZE_X / 2, tmpY + TILESIZE_Y / 4);
+#ifdef MAP_IS_ISOMETRIC
+      refTexture.setScale(0.05f, 0.05f);
+#else
+      refTexture.setScale(0.1f, 0.1f);
+#endif
+      refTexture.draw();
+    }
+  }
+
   if (GameOptions::s_MapShowGrid) {
     FrameVector<sf::Vertex> gridLines;
     gridLines.reserve( ((tileFinX - tileIniX) + (tileFinY - tileIniY) + 4) << 1);

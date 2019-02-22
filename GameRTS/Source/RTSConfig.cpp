@@ -9,7 +9,7 @@ Color GameOptions::s_MapGridColor = Color(255, 0, 0, 255);
 bool GameOptions::s_Editor = false;
 bool GameOptions::s_PathFinder = false;
 int32 GameOptions::s_Terrain = -1;
-int32 GameOptions::s_PathState = 1;
+int32 GameOptions::s_PathState = -1;
 
 int32 GameOptions::s_BrushSize = 1;
 
