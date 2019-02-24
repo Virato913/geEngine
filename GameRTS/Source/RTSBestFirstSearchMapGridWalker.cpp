@@ -1,10 +1,10 @@
-#include "RTSBreadthFirstSearchMapGridWalker.h"
+#include "RTSBestFirstSearchMapGridWalker.h"
 
 #include "RTSTiledMap.h"
 #include "RTSMapTileNode.h"
 #include "RTSTexture.h"
 
-RTSBreadthFirstSearchMapGridWalker::RTSBreadthFirstSearchMapGridWalker(void) :
+RTSBestFirstSearchMapGridWalker::RTSBestFirstSearchMapGridWalker(void) :
   RTSMapGridWalker::RTSMapGridWalker() {
   m_N = ge_new<RTSMapTileNode>();
   m_Start = ge_new<RTSMapTileNode>();
@@ -17,7 +17,7 @@ RTSBreadthFirstSearchMapGridWalker::RTSBreadthFirstSearchMapGridWalker(void) :
   setEndPosition(0, 0);
 }
 
-RTSBreadthFirstSearchMapGridWalker::RTSBreadthFirstSearchMapGridWalker(RTSTiledMap* pMap) :
+RTSBestFirstSearchMapGridWalker::RTSBestFirstSearchMapGridWalker(RTSTiledMap* pMap) :
   RTSMapGridWalker::RTSMapGridWalker(pMap) {
   m_N = nullptr;
   //m_TileGrid.clear();
@@ -27,11 +27,11 @@ RTSBreadthFirstSearchMapGridWalker::RTSBreadthFirstSearchMapGridWalker(RTSTiledM
   setEndPosition(0, 0);
 }
 
-RTSBreadthFirstSearchMapGridWalker::~RTSBreadthFirstSearchMapGridWalker() {
+RTSBestFirstSearchMapGridWalker::~RTSBestFirstSearchMapGridWalker() {
   destroy();
 }
 
-bool RTSBreadthFirstSearchMapGridWalker::init(sf::RenderTarget* target) {
+bool RTSBestFirstSearchMapGridWalker::init(sf::RenderTarget* target) {
   if(/*m_TileGrid.size() > 0*/m_TileGrid)
   {
     destroy();
@@ -50,6 +50,7 @@ bool RTSBreadthFirstSearchMapGridWalker::init(sf::RenderTarget* target) {
       m_TileGrid[i][j].setVisited(false);
       m_TileGrid[i][j].m_x = i;
       m_TileGrid[i][j].m_y = j;
+      m_TileGrid[i][j].setCost(m_pTiledMap->getCost(i, j));
     }
   }
   m_Node->loadFromFile(target, "Textures/Node/circle.png");
@@ -57,12 +58,12 @@ bool RTSBreadthFirstSearchMapGridWalker::init(sf::RenderTarget* target) {
   return true;
 }
 
-void RTSBreadthFirstSearchMapGridWalker::destroy() {
-  if(m_Open.size()>0)
+void RTSBestFirstSearchMapGridWalker::destroy() {
+  if(m_Open.size() > 0)
   {
     m_Open.clear();
   }
-  if(m_Visited.size()>0)
+  if(m_Visited.size() > 0)
   {
     m_Visited.clear();
   }
@@ -90,7 +91,7 @@ void RTSBreadthFirstSearchMapGridWalker::destroy() {
   m_N = nullptr;
 }
 
-void RTSBreadthFirstSearchMapGridWalker::render() {
+void RTSBestFirstSearchMapGridWalker::render() {
   int32 _x;
   int32 _y;
   for(int32 i = 0; i < m_Visited.size(); i++)
@@ -102,11 +103,11 @@ void RTSBreadthFirstSearchMapGridWalker::render() {
   }
 }
 
-WALK_STATE::E RTSBreadthFirstSearchMapGridWalker::update() {
+WALK_STATE::E RTSBestFirstSearchMapGridWalker::update() {
   if(m_Open.size() > 0)
   {
-    m_N = m_Open.back();
-    m_Open.pop_back();
+    m_N = m_Open.front();
+    m_Open.pop_front();
     m_N->setVisited(true);
     m_Visited.push_back(m_N);
     if(m_N->Equals(*m_End))
@@ -177,7 +178,7 @@ WALK_STATE::E RTSBreadthFirstSearchMapGridWalker::update() {
   return kUnableToReachGoal;
 }
 
-void RTSBreadthFirstSearchMapGridWalker::visitGridNode(int32 x, int32 y)
+void RTSBestFirstSearchMapGridWalker::visitGridNode(int32 x, int32 y)
 {
   //if((m_pTiledMap->getCost(x, y) != 3000 && !m_TileGrid[x + m_pTiledMap->getMapSize().y * y]->getVisited()) &&
   //   !m_TileGrid[x + m_pTiledMap->getMapSize().y * y]->m_parent)
@@ -186,22 +187,46 @@ void RTSBreadthFirstSearchMapGridWalker::visitGridNode(int32 x, int32 y)
   //  m_TileGrid[x + m_pTiledMap->getMapSize().y * y]->m_parent = m_N;
   //  m_Open.unique();
   //}
-  if((m_pTiledMap->getCost(x, y) != 3000 && !m_TileGrid[x][y].getVisited()) &&
+  if((m_pTiledMap->getCost(x, y) != 3 && !m_TileGrid[x][y].getVisited()) &&
      !m_TileGrid[x][y].m_parent)
   {
-    m_Open.push_front(&m_TileGrid[x][y]);
-    m_TileGrid[x][y].m_parent = m_N;
-    m_Open.unique();
+    priorityQueue(x, y);
   }
 }
 
-void RTSBreadthFirstSearchMapGridWalker::reset()
+void RTSBestFirstSearchMapGridWalker::priorityQueue(int32 x, int32 y)
 {
-  if(m_Open.size()>0)
+  Vector2I node = Vector2I(x, y);
+  Vector2I end = Vector2I(m_End->m_x, m_End->m_y);
+  uint32 distance = node.manhattanDist(end);
+  for(auto it = m_Open.begin(); it != m_Open.end(); it++)
+  {
+    if((*it)->m_x == x && (*it)->m_y == y)
+    {
+      return;
+    }
+    node.x = (*it)->m_x;
+    node.y = (*it)->m_y;
+    if(distance < node.manhattanDist(end))
+    {
+      m_Open.insert(it, &m_TileGrid[x][y]);
+      m_TileGrid[x][y].m_parent = m_N;
+      m_Open.unique();
+      return;
+    }
+  }
+  m_Open.push_back(&m_TileGrid[x][y]);
+  m_TileGrid[x][y].m_parent = m_N;
+  m_Open.unique();
+}
+
+void RTSBestFirstSearchMapGridWalker::reset()
+{
+  if(m_Open.size() > 0)
   {
     m_Open.clear();
   }
-  if(m_Visited.size()>0)
+  if(m_Visited.size() > 0)
   {
     m_Visited.clear();
   }

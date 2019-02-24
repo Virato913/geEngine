@@ -150,6 +150,7 @@ RTSApplication::gameLoop() {
                 (j >= -1 && j < map->getMapSize().x - 1))
               {
                   map->setType(i + 1, j + 1, GameOptions::s_Terrain);
+                  map->setCost(i + 1, j + 1, GameOptions::s_Terrain);
               }
             }
           }

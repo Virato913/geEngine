@@ -35,6 +35,7 @@ class RTSBreadthFirstSearchMapGridWalker : public RTSMapGridWalker
   RTSMapTileNode* m_Start;
   RTSMapTileNode* m_N;
   RTSMapTileNode* m_End;
-  Vector<RTSMapTileNode*> m_TileGrid;
+  //Vector<RTSMapTileNode*> m_TileGrid;
+  RTSMapTileNode** m_TileGrid;
   RTSTexture* m_Node;
 };
