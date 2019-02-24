@@ -10,6 +10,8 @@ RTSTiledMap::RTSTiledMap() {
   m_scrEnd = Vector2I::ZERO;
   m_iCamera = Vector2I::ZERO;
   m_fCamera = Vector2::ZERO;
+  m_PathStart = Vector2I::ZERO;
+  m_PathEnd = Vector2I::ZERO;
 }
 
 RTSTiledMap::RTSTiledMap(sf::RenderTarget* pTarget, const Vector2I& mapSize) {
@@ -68,7 +70,9 @@ RTSTiledMap::init(sf::RenderTarget* pTarget, const Vector2I& mapSize) {
 
   m_flagTextures.resize(2);
   m_flagTextures[0].loadFromFile(pTarget, "Textures/Flags/flag0.png");
+  m_flagTextures[0].setOrigin(m_flagTextures[0].getWidth() / 2.0f, m_flagTextures[0].getHeight() / 2.0f);
   m_flagTextures[1].loadFromFile(pTarget, "Textures/Flags/flag1.png");
+  m_flagTextures[1].setOrigin(m_flagTextures[1].getWidth() / 2.0f, m_flagTextures[1].getHeight() / 2.0f);
 
   preCalc();
 
@@ -231,25 +235,6 @@ RTSTiledMap::render() {
       refTexture.draw();
     }
   }
-  
-  if(GameOptions::s_PathFinder)
-  {
-    getMapToScreenCoords(0, 0, tmpX, tmpY);
-    if(!(tmpX > m_scrEnd.x ||
-         tmpY > m_scrEnd.y ||
-         (tmpX + TILESIZE_X) < m_scrStart.x ||
-         (tmpY + TILESIZE_X) < m_scrStart.y))
-    {
-      RTSTexture& refTexture = m_flagTextures[(0 + 0) % 2];
-      refTexture.setPosition(tmpX + TILESIZE_X / 2, tmpY + TILESIZE_Y / 4);
-#ifdef MAP_IS_ISOMETRIC
-      refTexture.setScale(0.05f, 0.05f);
-#else
-      refTexture.setScale(0.1f, 0.1f);
-#endif
-      refTexture.draw();
-    }
-  }
 
   if (GameOptions::s_MapShowGrid) {
     FrameVector<sf::Vertex> gridLines;
@@ -357,4 +342,53 @@ RTSTiledMap::loadFromImageFile(sf::RenderTarget* pTarget, String fileName) {
 bool
 RTSTiledMap::saveToImageFile(sf::RenderTarget*, String) {
   return false;
+}
+
+void RTSTiledMap::setPathStart(float x, float y)
+{
+  m_PathStart = Vector2I(x, y);
+}
+
+void RTSTiledMap::setPathEnd(float x, float y)
+{
+  m_PathEnd = Vector2I(x, y);
+}
+
+void RTSTiledMap::renderPathFinding()
+{
+  if(GameOptions::s_PathFinder)
+  {
+    int32 tmpX = 0;
+    int32 tmpY = 0;
+    getMapToScreenCoords(m_PathStart.x, m_PathStart.y, tmpX, tmpY);
+    if(!(tmpX > m_scrEnd.x ||
+         tmpY > m_scrEnd.y ||
+         (tmpX + TILESIZE_X) < m_scrStart.x ||
+         (tmpY + TILESIZE_X) < m_scrStart.y))
+    {
+      RTSTexture& refTexture = m_flagTextures[0];
+      refTexture.setPosition(tmpX + TILESIZE_X / 2, tmpY + TILESIZE_Y / 2);
+#ifdef MAP_IS_ISOMETRIC
+      refTexture.setScale(0.05f, 0.05f);
+#else
+      refTexture.setScale(0.1f, 0.1f);
+#endif
+      refTexture.draw();
+    }
+    getMapToScreenCoords(m_PathEnd.x, m_PathEnd.y, tmpX, tmpY);
+    if(!(tmpX > m_scrEnd.x ||
+         tmpY > m_scrEnd.y ||
+         (tmpX + TILESIZE_X) < m_scrStart.x ||
+         (tmpY + TILESIZE_X) < m_scrStart.y))
+    {
+      RTSTexture& refTexture = m_flagTextures[1];
+      refTexture.setPosition(tmpX + TILESIZE_X / 2, tmpY + TILESIZE_Y / 2);
+#ifdef MAP_IS_ISOMETRIC
+      refTexture.setScale(0.05f, 0.05f);
+#else
+      refTexture.setScale(0.1f, 0.1f);
+#endif
+      refTexture.draw();
+    }
+  }
 }

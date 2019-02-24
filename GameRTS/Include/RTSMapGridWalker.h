@@ -3,6 +3,8 @@
 #include "gePrerequisitesUtil.h"
 #include "geVector2I.h"
 
+#include <SFML/Graphics.hpp>
+
 using namespace geEngineSDK;
 
 class RTSTiledMap;
@@ -24,7 +26,7 @@ class RTSMapGridWalker
   RTSMapGridWalker(RTSTiledMap* pMap) { m_pTiledMap = pMap; }
   virtual ~RTSMapGridWalker(void);
 
-  virtual bool init() { return false; }
+  virtual bool init(sf::RenderTarget* render) { return false; }
   virtual void destroy() = 0;
   virtual WALK_STATE::E update() = 0;
   virtual void render() = 0;
@@ -34,9 +36,9 @@ class RTSMapGridWalker
   void setTiledMap(RTSTiledMap* pMap) { m_pTiledMap = pMap; }
   RTSTiledMap* getMapGrid() { return m_pTiledMap; }
   void setStartPosition(const int32 x, const int32 y) { m_StartX = x; m_StartY = y; }
-  void setEndPosition(const int32 x, const int32 y) { m_EndX = x; m_StartY = y; }
+  void setEndPosition(const int32 x, const int32 y) { m_EndX = x; m_EndY = y; }
   void getStartPosition(int32& x, int32& y) { x = m_StartX; y = m_StartY; }
-  void getEndPosition(int32& x, int32& y) { x = m_StartX; y = m_StartY; }
+  void getEndPosition(int32& x, int32& y) { x = m_EndX; y = m_EndY; }
 
  protected:
   virtual void visitGridNode(int32 x, int32 y) = 0;

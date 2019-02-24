@@ -160,13 +160,19 @@ RTSApplication::gameLoop() {
           if(GameOptions::s_PathState == 0)
           {
             //TODO: Set start
-
+            m_gameWorld.setPathStart(_x, _y);
           }
           if(GameOptions::s_PathState == 1)
           {
             //TODO: Set end
+            m_gameWorld.setPathEnd(_x, _y);
           }
         }
+      }
+      if(sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Space))
+      {
+        GameOptions::s_ReachedGoal = false;
+        m_gameWorld.startPathFinding();
       }
     }
 
@@ -354,9 +360,15 @@ mainMenu(RTSApplication* pApp) {
 
     ImGui::Checkbox("Show grid", &GameOptions::s_MapShowGrid);
 
-    ImGui::Checkbox("Terrain Editor", &GameOptions::s_Editor);
+    if(ImGui::Checkbox("Terrain Editor", &GameOptions::s_Editor))
+    {
+      GameOptions::s_PathFinder = false;
+    }
 
-    ImGui::Checkbox("Path Finder", &GameOptions::s_PathFinder);
+    if(ImGui::Checkbox("Path Finder", &GameOptions::s_PathFinder))
+    {
+      GameOptions::s_Editor = false;
+    }
   }
   ImGui::End();
 

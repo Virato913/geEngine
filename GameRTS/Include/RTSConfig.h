@@ -35,6 +35,7 @@ class GameOptions : public Module<GameOptions>
 
   static bool s_Editor;
   static bool s_PathFinder;
+  static bool s_ReachedGoal;
   static int32 s_Terrain;
   static int32 s_PathState;
 

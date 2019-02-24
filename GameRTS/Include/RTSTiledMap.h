@@ -164,6 +164,12 @@ class RTSTiledMap
   void
     getMapGrid(Vector<MapTile>& mapGrid);
 
+  void setPathStart(float x, float y);
+
+  void setPathEnd(float x, float y);
+
+  void renderPathFinding();
+
  private:
   Vector2I m_mapSize;
   Vector<MapTile> m_mapGrid;
@@ -181,4 +187,7 @@ class RTSTiledMap
   Vector2I m_PreCalc_ScreenDeface;
 
   sf::RenderTarget* m_pTarget;
+
+  Vector2I m_PathStart;
+  Vector2I m_PathEnd;
 };

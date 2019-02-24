@@ -168,6 +168,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="RTSDepthFirstSearchMapGridWalker.cpp" />
     <ClCompile Include="Source\Externals\imgui-SFML.cpp" />
     <ClCompile Include="Source\Externals\imgui.cpp" />
     <ClCompile Include="Source\Externals\imgui_demo.cpp" />
@@ -188,6 +189,7 @@
     <ClInclude Include="Include\RTSApplication.h" />
     <ClInclude Include="Include\RTSBreadthFirstSearchMapGridWalker.h" />
     <ClInclude Include="Include\RTSConfig.h" />
+    <ClInclude Include="Include\RTSDepthFirstSearchMapGridWalker.h" />
     <ClInclude Include="Include\RTSMapGridWalker.h" />
     <ClInclude Include="Include\RTSMapTileNode.h" />
     <ClInclude Include="Include\RTSTexture.h" />

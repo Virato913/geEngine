@@ -12,12 +12,12 @@ using namespace WALK_STATE;
 class RTSMapTileNode;
 class RTSTexture;
 
-class RTSBreadthFirstSearchMapGridWalker : public RTSMapGridWalker
+class RTSDepthFirstSearchMapGridWalker : public RTSMapGridWalker
 {
- public:
-  RTSBreadthFirstSearchMapGridWalker(void);
-  RTSBreadthFirstSearchMapGridWalker(RTSTiledMap* pMap);
-  virtual ~RTSBreadthFirstSearchMapGridWalker(void);
+public:
+  RTSDepthFirstSearchMapGridWalker(void);
+  RTSDepthFirstSearchMapGridWalker(RTSTiledMap* pMap);
+  virtual ~RTSDepthFirstSearchMapGridWalker(void);
 
   virtual bool init(sf::RenderTarget* target);
   virtual void destroy();
@@ -26,10 +26,10 @@ class RTSBreadthFirstSearchMapGridWalker : public RTSMapGridWalker
   virtual void reset();
   //virtual bool weightedGraphSupported() { return false; }
 
- protected:
+protected:
   virtual void visitGridNode(int32 x, int32 y);
 
- private:
+private:
   List<RTSMapTileNode*> m_Open;
   Vector<RTSMapTileNode*> m_Visited;
   RTSMapTileNode* m_Start;

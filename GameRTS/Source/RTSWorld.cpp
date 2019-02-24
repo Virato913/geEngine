@@ -31,7 +31,7 @@ RTSWorld::init(sf::RenderTarget* pTarget) {
   //Init the walker objects
 
   for (SIZE_T it = 0; it < m_walkersList.size(); ++it) {
-    m_walkersList[it]->init();
+    m_walkersList[it]->init(m_pTarget);
   }
 
   //Set the first walker as the active walker
@@ -62,12 +62,23 @@ RTSWorld::destroy() {
 void
 RTSWorld::update(float deltaTime) {
   m_pTiledMap->update(deltaTime);
-  m_activeWalker->update();
+  if(!GameOptions::s_ReachedGoal)
+  {
+    if(m_activeWalker->update() == WALK_STATE::kReachedGoal)
+    {
+      GameOptions::s_ReachedGoal = true;
+    }
+  }
 }
 
 void
 RTSWorld::render() {
   m_pTiledMap->render();
+  if(GameOptions::s_PathFinder)
+  {
+    m_activeWalker->render();
+  }
+  m_pTiledMap->renderPathFinding();
 }
 
 void
@@ -90,4 +101,21 @@ RTSWorld::setCurrentWalker(const int8 index) {
 
   m_activeWalker = m_walkersList[index];
   m_activeWalkerIndex = index;
+}
+
+void RTSWorld::setPathStart(float x, float y)
+{
+  m_activeWalker->setStartPosition(x, y);
+  m_pTiledMap->setPathStart(x, y);
+}
+
+void RTSWorld::setPathEnd(float x, float y)
+{
+  m_activeWalker->setEndPosition(x, y);
+  m_pTiledMap->setPathEnd(x, y);
+}
+
+void RTSWorld::startPathFinding()
+{
+  m_activeWalker->reset();
 }

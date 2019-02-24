@@ -40,6 +40,12 @@ class RTSWorld
   void
   setCurrentWalker(const int8 index);
 
+  void setPathStart(float x, float y);
+
+  void setPathEnd(float x, float y);
+  
+  void startPathFinding();
+
  private:
   RTSTiledMap* m_pTiledMap;
   //List<RTSUnitType*> m_lstUnitTypes;
