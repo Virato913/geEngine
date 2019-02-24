@@ -398,6 +398,11 @@ mainMenu(RTSApplication* pApp) {
     {
       ImGui::RadioButton("Start", &GameOptions::s_PathState, 0);
       ImGui::RadioButton("End", &GameOptions::s_PathState, 1);
+      ImGui::Separator();
+      ImGui::RadioButton("Depth First Search", &GameOptions::s_Walker, 0);
+      ImGui::RadioButton("Breadth First Search", &GameOptions::s_Walker, 1);
+      ImGui::RadioButton("Best First Search", &GameOptions::s_Walker, 2);
+      ImGui::RadioButton("Dijkstra", &GameOptions::s_Walker, 3);
     }
     ImGui::End();
   }

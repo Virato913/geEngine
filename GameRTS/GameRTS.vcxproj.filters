@@ -59,10 +59,13 @@
     <ClCompile Include="Source\RTSMapTileNode.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="RTSDepthFirstSearchMapGridWalker.cpp">
+    <ClCompile Include="Source\RTSBestFirstSearchMapGridWalker.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Source\RTSBestFirstSearchMapGridWalker.cpp">
+    <ClCompile Include="Source\RTSDepthFirstSearchMapGridWalker.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\RTSDijkstraMapGridWalker.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -98,6 +101,9 @@
       <Filter>Source Files</Filter>
     </ClInclude>
     <ClInclude Include="Include\RTSBestFirstSearchMapGridWalker.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Include\RTSDijkstraMapGridWalker.h">
       <Filter>Source Files</Filter>
     </ClInclude>
   </ItemGroup>

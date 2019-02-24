@@ -33,6 +33,7 @@ class RTSMapGridWalker
   virtual void reset() = 0;
   virtual bool weightedGraphSupported() { return false; }
   virtual bool heuristicsSupported() { return false; }
+  virtual void traceback() = 0;
   void setTiledMap(RTSTiledMap* pMap) { m_pTiledMap = pMap; }
   RTSTiledMap* getMapGrid() { return m_pTiledMap; }
   void setStartPosition(const int32 x, const int32 y) { m_StartX = x; m_StartY = y; }

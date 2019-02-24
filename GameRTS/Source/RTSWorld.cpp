@@ -2,7 +2,10 @@
 #include "RTSTiledMap.h"
 
 #include "RTSUnitType.h"
+#include "RTSDepthFirstSearchMapGridWalker.h"
+#include "RTSBreadthFirstSearchMapGridWalker.h"
 #include "RTSBestFirstSearchMapGridWalker.h"
+#include "RTSDijkstraMapGridWalker.h"
 
 RTSWorld::RTSWorld() {
   m_pTiledMap = nullptr;
@@ -23,10 +26,13 @@ RTSWorld::init(sf::RenderTarget* pTarget) {
   //Initialize the map (right now it's an empty map)
   m_pTiledMap = ge_new<RTSTiledMap>();
   GE_ASSERT(m_pTiledMap);
-  m_pTiledMap->init(m_pTarget, Vector2I(4096, 4096));
+  m_pTiledMap->init(m_pTarget, Vector2I(256, 256));
 
   //Create the path finding classes and push them to the walker list
+  m_walkersList.push_back(ge_new<RTSDepthFirstSearchMapGridWalker>(m_pTiledMap));
+  m_walkersList.push_back(ge_new<RTSBreadthFirstSearchMapGridWalker>(m_pTiledMap));
   m_walkersList.push_back(ge_new<RTSBestFirstSearchMapGridWalker>(m_pTiledMap));
+  m_walkersList.push_back(ge_new<RTSDijkstraMapGridWalker>(m_pTiledMap));
 
   //Init the walker objects
 
@@ -48,7 +54,10 @@ void
 RTSWorld::destroy() {
  //Destroy all the walkers
   while (m_walkersList.size() > 0) {
-    ge_delete(m_walkersList.back());
+    if(m_walkersList.back())
+    {
+      ge_delete(m_walkersList.back());
+    }
     m_walkersList.pop_back();
   }
 
@@ -61,6 +70,7 @@ RTSWorld::destroy() {
 
 void
 RTSWorld::update(float deltaTime) {
+  setCurrentWalker(GameOptions::s_Walker);
   m_pTiledMap->update(deltaTime);
   if(!GameOptions::s_ReachedGoal)
   {
@@ -68,6 +78,10 @@ RTSWorld::update(float deltaTime) {
     {
       GameOptions::s_ReachedGoal = true;
     }
+  }
+  else
+  {
+    m_activeWalker->traceback();
   }
 }
 
@@ -105,13 +119,19 @@ RTSWorld::setCurrentWalker(const int8 index) {
 
 void RTSWorld::setPathStart(float x, float y)
 {
-  m_activeWalker->setStartPosition(x, y);
+  for(SIZE_T it = 0; it < m_walkersList.size(); ++it) {
+    m_walkersList[it]->setStartPosition(x, y);
+    m_walkersList[it]->setStartPosition(x, y);
+  }
   m_pTiledMap->setPathStart(x, y);
 }
 
 void RTSWorld::setPathEnd(float x, float y)
 {
-  m_activeWalker->setEndPosition(x, y);
+  for(SIZE_T it = 0; it < m_walkersList.size(); ++it) {
+    m_walkersList[it]->setEndPosition(x, y);
+    m_walkersList[it]->setEndPosition(x, y);
+  }
   m_pTiledMap->setPathEnd(x, y);
 }
 

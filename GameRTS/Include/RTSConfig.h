@@ -38,7 +38,7 @@ class GameOptions : public Module<GameOptions>
   static bool s_ReachedGoal;
   static int32 s_Terrain;
   static int32 s_PathState;
-
+  static int32 s_Walker;
   static int32 s_BrushSize;
 
   //Global Constants

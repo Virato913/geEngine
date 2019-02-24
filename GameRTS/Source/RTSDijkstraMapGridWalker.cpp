@@ -1,10 +1,10 @@
-#include "RTSBestFirstSearchMapGridWalker.h"
+#include "RTSDijkstraMapGridWalker.h"
 
 #include "RTSTiledMap.h"
 #include "RTSMapTileNode.h"
 #include "RTSTexture.h"
 
-RTSBestFirstSearchMapGridWalker::RTSBestFirstSearchMapGridWalker(void) :
+RTSDijkstraMapGridWalker::RTSDijkstraMapGridWalker(void) :
   RTSMapGridWalker::RTSMapGridWalker() {
   m_N = ge_new<RTSMapTileNode>();
   m_Start = ge_new<RTSMapTileNode>();
@@ -18,7 +18,7 @@ RTSBestFirstSearchMapGridWalker::RTSBestFirstSearchMapGridWalker(void) :
   setEndPosition(0, 0);
 }
 
-RTSBestFirstSearchMapGridWalker::RTSBestFirstSearchMapGridWalker(RTSTiledMap* pMap) :
+RTSDijkstraMapGridWalker::RTSDijkstraMapGridWalker(RTSTiledMap* pMap) :
   RTSMapGridWalker::RTSMapGridWalker(pMap) {
   m_N = nullptr;
   //m_TileGrid.clear();
@@ -29,11 +29,11 @@ RTSBestFirstSearchMapGridWalker::RTSBestFirstSearchMapGridWalker(RTSTiledMap* pM
   setEndPosition(0, 0);
 }
 
-RTSBestFirstSearchMapGridWalker::~RTSBestFirstSearchMapGridWalker() {
+RTSDijkstraMapGridWalker::~RTSDijkstraMapGridWalker() {
   destroy();
 }
 
-bool RTSBestFirstSearchMapGridWalker::init(sf::RenderTarget* target) {
+bool RTSDijkstraMapGridWalker::init(sf::RenderTarget* target) {
   m_pTarget = target;
   if(/*m_TileGrid.size() > 0*/m_TileGrid)
   {
@@ -61,7 +61,7 @@ bool RTSBestFirstSearchMapGridWalker::init(sf::RenderTarget* target) {
   return true;
 }
 
-void RTSBestFirstSearchMapGridWalker::destroy() {
+void RTSDijkstraMapGridWalker::destroy() {
   if(m_Open.size() > 0)
   {
     m_Open.clear();
@@ -94,7 +94,7 @@ void RTSBestFirstSearchMapGridWalker::destroy() {
     ge_delete(m_Node);
 }
 
-void RTSBestFirstSearchMapGridWalker::render() {
+void RTSDijkstraMapGridWalker::render() {
   int32 _x;
   int32 _y;
   for(int32 i = 0; i < m_Visited.size(); i++)
@@ -107,7 +107,7 @@ void RTSBestFirstSearchMapGridWalker::render() {
   m_pTarget->draw(m_FastestPath);
 }
 
-WALK_STATE::E RTSBestFirstSearchMapGridWalker::update() {
+WALK_STATE::E RTSDijkstraMapGridWalker::update() {
   if(m_Open.size() > 0)
   {
     m_N = m_Open.front();
@@ -182,7 +182,7 @@ WALK_STATE::E RTSBestFirstSearchMapGridWalker::update() {
   return kUnableToReachGoal;
 }
 
-void RTSBestFirstSearchMapGridWalker::visitGridNode(int32 x, int32 y)
+void RTSDijkstraMapGridWalker::visitGridNode(int32 x, int32 y)
 {
   //if((m_pTiledMap->getCost(x, y) != 3000 && !m_TileGrid[x + m_pTiledMap->getMapSize().y * y]->getVisited()) &&
   //   !m_TileGrid[x + m_pTiledMap->getMapSize().y * y]->m_parent)
@@ -198,7 +198,7 @@ void RTSBestFirstSearchMapGridWalker::visitGridNode(int32 x, int32 y)
   }
 }
 
-void RTSBestFirstSearchMapGridWalker::traceback()
+void RTSDijkstraMapGridWalker::traceback()
 {
   m_FastestPath.clear();
   int32 tempX = 0;
@@ -218,33 +218,30 @@ void RTSBestFirstSearchMapGridWalker::traceback()
   }
 }
 
-void RTSBestFirstSearchMapGridWalker::priorityQueue(int32 x, int32 y)
+void RTSDijkstraMapGridWalker::priorityQueue(int32 x, int32 y)
 {
-  Vector2I node = Vector2I(x, y);
-  Vector2I end = Vector2I(m_End->m_x, m_End->m_y);
-  uint32 distance = node.manhattanDist(end);
   for(auto it = m_Open.begin(); it != m_Open.end(); it++)
   {
     if((*it)->m_x == x && (*it)->m_y == y)
     {
       return;
     }
-    node.x = (*it)->m_x;
-    node.y = (*it)->m_y;
-    if(distance < node.manhattanDist(end))
+    if(m_N->m_cost < (*it)->m_cost)
     {
       m_Open.insert(it, &m_TileGrid[x][y]);
       m_TileGrid[x][y].m_parent = m_N;
+      m_TileGrid[x][y].m_cost += m_TileGrid[x][y].m_parent->m_cost;
       m_Open.unique();
       return;
     }
   }
   m_Open.push_back(&m_TileGrid[x][y]);
   m_TileGrid[x][y].m_parent = m_N;
+  m_TileGrid[x][y].m_cost += m_TileGrid[x][y].m_parent->m_cost;
   m_Open.unique();
 }
 
-void RTSBestFirstSearchMapGridWalker::reset()
+void RTSDijkstraMapGridWalker::reset()
 {
   if(m_Open.size() > 0)
   {

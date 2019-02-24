@@ -25,6 +25,7 @@ public:
   virtual void render();
   virtual void reset();
   //virtual bool weightedGraphSupported() { return false; }
+  virtual void traceback();
 
 protected:
   virtual void visitGridNode(int32 x, int32 y);
@@ -38,4 +39,7 @@ private:
   //Vector<RTSMapTileNode*> m_TileGrid;
   RTSMapTileNode** m_TileGrid;
   RTSTexture* m_Node;
+
+  sf::RenderTarget* m_pTarget;
+  sf::VertexArray m_FastestPath;
 };

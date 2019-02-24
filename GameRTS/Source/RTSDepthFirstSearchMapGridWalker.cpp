@@ -13,6 +13,7 @@ RTSDepthFirstSearchMapGridWalker::RTSDepthFirstSearchMapGridWalker(void) :
   //m_TileGrid.clear();
   m_TileGrid = nullptr;
   m_Node = ge_new<RTSTexture>();
+  m_FastestPath = sf::VertexArray(sf::LineStrip);
   setStartPosition(0, 0);
   setEndPosition(0, 0);
 }
@@ -23,6 +24,7 @@ RTSDepthFirstSearchMapGridWalker::RTSDepthFirstSearchMapGridWalker(RTSTiledMap* 
   //m_TileGrid.clear();
   m_TileGrid = nullptr;
   m_Node = ge_new<RTSTexture>();
+  m_FastestPath = sf::VertexArray(sf::LineStrip);
   setStartPosition(0, 0);
   setEndPosition(0, 0);
 }
@@ -32,6 +34,7 @@ RTSDepthFirstSearchMapGridWalker::~RTSDepthFirstSearchMapGridWalker() {
 }
 
 bool RTSDepthFirstSearchMapGridWalker::init(sf::RenderTarget* target) {
+  m_pTarget = target;
   if(/*m_TileGrid.size() > 0*/m_TileGrid)
   {
     destroy();
@@ -76,18 +79,18 @@ void RTSDepthFirstSearchMapGridWalker::destroy() {
   //}
   if(m_TileGrid)
   {
-    int32 mapaSize = m_pTiledMap->getMapSize().x*m_pTiledMap->getMapSize().y;
+    int32 mapaSize = m_pTiledMap->getMapSize().x;
     for(int32 i = 0; i < mapaSize; i++)
     {
       ge_delete(m_TileGrid[i]);
     }
     ge_delete(m_TileGrid);
   }
-  ge_delete(m_N);
-  ge_delete(m_Start);
-  ge_delete(m_End);
-  ge_delete(m_Node);
+  m_Start = nullptr;
+  m_End = nullptr;
   m_N = nullptr;
+  if(m_Node)
+    ge_delete(m_Node);
 }
 
 void RTSDepthFirstSearchMapGridWalker::render() {
@@ -100,6 +103,7 @@ void RTSDepthFirstSearchMapGridWalker::render() {
     m_Node->setScale(0.025f, 0.025f);
     m_Node->draw();
   }
+  m_pTarget->draw(m_FastestPath);
 }
 
 WALK_STATE::E RTSDepthFirstSearchMapGridWalker::update() {
@@ -186,12 +190,32 @@ void RTSDepthFirstSearchMapGridWalker::visitGridNode(int32 x, int32 y)
   //  m_TileGrid[x + m_pTiledMap->getMapSize().y * y]->m_parent = m_N;
   //  m_Open.unique();
   //}
-  if((m_pTiledMap->getCost(x, y) != 3000 && !m_TileGrid[x][y].getVisited()) &&
+  if((m_pTiledMap->getCost(x, y) != 3 && !m_TileGrid[x][y].getVisited()) &&
      !m_TileGrid[x][y].m_parent)
   {
     m_Open.push_front(&m_TileGrid[x][y]);
     m_TileGrid[x][y].m_parent = m_N;
     m_Open.unique();
+  }
+}
+
+void RTSDepthFirstSearchMapGridWalker::traceback()
+{
+  m_FastestPath.clear();
+  int32 tempX = 0;
+  int32 tempY = 0;
+  if(m_Visited.size() > 0)
+  {
+    RTSMapTileNode* n = m_Visited.back();
+    while(n->m_parent)
+    {
+      m_pTiledMap->getMapToScreenCoords(n->m_x, n->m_y, tempX, tempY);
+      m_FastestPath.append(sf::Vertex(sf::Vector2f(tempX + TILESIZE_X / 2, tempY + TILESIZE_Y / 2)));
+      n = n->m_parent;
+    }
+    n = m_Visited.front();
+    m_pTiledMap->getMapToScreenCoords(n->m_x, n->m_y, tempX, tempY);
+    m_FastestPath.append(sf::Vertex(sf::Vector2f(tempX + TILESIZE_X / 2, tempY + TILESIZE_Y / 2)));
   }
 }
 
@@ -206,6 +230,8 @@ void RTSDepthFirstSearchMapGridWalker::reset()
     m_Visited.clear();
   }
 
+  m_FastestPath.clear();
+
   m_N = nullptr;
 
   //int32 mapSize = m_pTiledMap->getMapSize().x * m_pTiledMap->getMapSize().y;
@@ -215,6 +241,10 @@ void RTSDepthFirstSearchMapGridWalker::reset()
     for(int32 j = 0; j < m_pTiledMap->getMapSize().y; j++)
     {
       m_TileGrid[i][j].setVisited(false);
+      if(m_TileGrid[i][j].m_parent)
+      {
+        m_TileGrid[i][j].m_parent = nullptr;
+      }
     }
   }
 

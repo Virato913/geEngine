@@ -10,8 +10,8 @@ bool GameOptions::s_Editor = false;
 bool GameOptions::s_PathFinder = false;
 bool GameOptions::s_ReachedGoal = false;
 int32 GameOptions::s_Terrain = -1;
-int32 GameOptions::s_PathState = -1;
-
+int32 GameOptions::s_PathState = 1;
+int32 GameOptions::s_Walker = 1;
 int32 GameOptions::s_BrushSize = 1;
 
 const Vector2I
