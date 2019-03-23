@@ -190,13 +190,47 @@ void RTSDepthFirstSearchMapGridWalker::visitGridNode(int32 x, int32 y)
   //  m_TileGrid[x + m_pTiledMap->getMapSize().y * y]->m_parent = m_N;
   //  m_Open.unique();
   //}
-  if((m_pTiledMap->getCost(x, y) != 3 && !m_TileGrid[x][y].getVisited()) &&
-     !m_TileGrid[x][y].m_parent)
+  if((m_pTiledMap->getType(x, y) != TERRAIN_TYPE::kObstacle && !m_TileGrid[x][y].getVisited()))
   {
-    m_Open.push_front(&m_TileGrid[x][y]);
+    if(!existsInList(&m_TileGrid[x][y], m_Open))
+    {
+      m_Open.push_front(&m_TileGrid[x][y]);
+    }
     m_TileGrid[x][y].m_parent = m_N;
-    m_Open.unique();
   }
+}
+
+template<typename T>
+bool RTSDepthFirstSearchMapGridWalker::existsInList(RTSMapTileNode* n, T list)
+{
+  for(auto it = list.begin(); it != list.end(); it++)
+  {
+    if(n->Equals(*(*it)))
+    {
+      list.erase(it);
+      return false;
+    }
+  }
+  return false;
+}
+
+void RTSDepthFirstSearchMapGridWalker::visitAdjacent(int32 _x, int32 _y, int32 x, int32 y)
+{
+  if(existsInList(&m_TileGrid[x][y], m_Visited))
+  {
+    Vector2I end(m_TileGrid[_x][_y].m_x, m_TileGrid[_x][_y].m_y),
+      parent(m_TileGrid[_x][_y].m_parent->m_x, m_TileGrid[_x][_y].m_parent->m_y),
+      adjacent(m_TileGrid[x][y].m_x, m_TileGrid[x][y].m_y);
+    if((end - adjacent).size() < (end - parent).size())
+    {
+      reparentNode(&m_TileGrid[_x][_y], &m_TileGrid[x][y]);
+    }
+  }
+}
+
+void RTSDepthFirstSearchMapGridWalker::reparentNode(RTSMapTileNode* n, RTSMapTileNode* parent)
+{
+  n->setParent(parent);
 }
 
 void RTSDepthFirstSearchMapGridWalker::traceback()

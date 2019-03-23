@@ -83,6 +83,7 @@ void
 RTSTiledMap::destroy() {
   m_mapGrid.clear();
   m_mapTextures.clear();
+  m_flagTextures.clear();
 
   m_mapSize = Vector2I::ZERO;
   setCameraStartPosition(0, 0);

@@ -13,6 +13,8 @@ RTSDijkstraMapGridWalker::RTSDijkstraMapGridWalker(void) :
   //m_TileGrid.clear();
   m_TileGrid = nullptr;
   m_Node = ge_new<RTSTexture>();
+  m_costText = ge_new<sf::Text>();
+  m_arialFont = ge_new<sf::Font>();
   m_FastestPath = sf::VertexArray(sf::LineStrip);
   setStartPosition(0, 0);
   setEndPosition(0, 0);
@@ -24,6 +26,8 @@ RTSDijkstraMapGridWalker::RTSDijkstraMapGridWalker(RTSTiledMap* pMap) :
   //m_TileGrid.clear();
   m_TileGrid = nullptr;
   m_Node = ge_new<RTSTexture>();
+  m_costText = ge_new<sf::Text>();
+  m_arialFont = ge_new<sf::Font>();
   m_FastestPath = sf::VertexArray(sf::LineStrip);
   setStartPosition(0, 0);
   setEndPosition(0, 0);
@@ -53,11 +57,13 @@ bool RTSDijkstraMapGridWalker::init(sf::RenderTarget* target) {
       m_TileGrid[i][j].setVisited(false);
       m_TileGrid[i][j].m_x = i;
       m_TileGrid[i][j].m_y = j;
-      m_TileGrid[i][j].setCost(m_pTiledMap->getCost(i, j));
+      m_TileGrid[i][j].setCost(m_pTiledMap->getCost(i, j) + 1);
     }
   }
   m_Node->loadFromFile(target, "Textures/Node/circle.png");
   m_Node->setOrigin(m_Node->getWidth() / 2.0f, m_Node->getHeight() / 2.0f);
+  m_arialFont->loadFromFile("Fonts/arial.ttf");
+  m_costText->setFont(*m_arialFont);
   return true;
 }
 
@@ -92,9 +98,13 @@ void RTSDijkstraMapGridWalker::destroy() {
   m_N = nullptr;
   if(m_Node)
     ge_delete(m_Node);
+  if(m_costText)
+    ge_delete(m_costText);
+  if(m_arialFont)
+    ge_delete(m_arialFont);
 }
 
-void RTSDijkstraMapGridWalker::render() {
+void RTSDijkstraMapGridWalker::render() {  
   int32 _x;
   int32 _y;
   for(int32 i = 0; i < m_Visited.size(); i++)
@@ -103,6 +113,9 @@ void RTSDijkstraMapGridWalker::render() {
     m_Node->setPosition(_x + TILESIZE_X / 2, _y + TILESIZE_Y / 2);
     m_Node->setScale(0.025f, 0.025f);
     m_Node->draw();
+    m_costText->setPosition(_x, _y);
+    m_costText->setString(toString(m_Visited[i]->m_cost).c_str());
+    m_pTarget->draw(*m_costText);
   }
   m_pTarget->draw(m_FastestPath);
 }
@@ -116,7 +129,7 @@ WALK_STATE::E RTSDijkstraMapGridWalker::update() {
     m_Visited.push_back(m_N);
     if(m_N->Equals(*m_End))
     {
-      return kReachedGoal;
+      //return kReachedGoal;
     }
     Vector2I mapSize = m_pTiledMap->getMapSize();
     int32 x, y;
@@ -191,11 +204,49 @@ void RTSDijkstraMapGridWalker::visitGridNode(int32 x, int32 y)
   //  m_TileGrid[x + m_pTiledMap->getMapSize().y * y]->m_parent = m_N;
   //  m_Open.unique();
   //}
-  if((m_pTiledMap->getCost(x, y) != 3 && !m_TileGrid[x][y].getVisited()) &&
+  if((m_pTiledMap->getType(x, y) != TERRAIN_TYPE::kObstacle && !m_TileGrid[x][y].getVisited()) &&
      !m_TileGrid[x][y].m_parent)
   {
     priorityQueue(x, y);
   }
+}
+
+template<typename T>
+bool RTSDijkstraMapGridWalker::existsInList(RTSMapTileNode* n, T list)
+{
+  for(auto it = list.begin(); it != list.end(); it++)
+  {
+    if(n->Equals(*(*it)))
+    {
+      return true;
+    }
+  }
+  return false;
+}
+
+int32 RTSDijkstraMapGridWalker::visitAdjacent(int32 _x, int32 _y, int32 x, int32 y)
+{
+  if(existsInList(&m_TileGrid[x][y], m_Visited))
+  {
+    int32 currentCost = m_TileGrid[_x][_y].m_cost;
+    int32 parentCost = m_TileGrid[_x][_y].m_parent->m_cost;
+    int32 adjacentCost = m_TileGrid[x][y].m_cost;
+    if(currentCost - adjacentCost > 0)
+    {
+      if((currentCost - adjacentCost) > (currentCost - parentCost))
+      {
+        return currentCost - adjacentCost;
+      }
+      return -1;
+    }
+    return -1;
+  }
+  return -1;
+}
+
+void RTSDijkstraMapGridWalker::reparentNode(RTSMapTileNode* n, RTSMapTileNode* parent)
+{
+  n->setParent(parent);
 }
 
 void RTSDijkstraMapGridWalker::traceback()
@@ -205,11 +256,128 @@ void RTSDijkstraMapGridWalker::traceback()
   int32 tempY = 0;
   if(m_Visited.size() > 0)
   {
-    RTSMapTileNode* n = m_Visited.back();
+    RTSMapTileNode* n = m_End;
+    Vector2I mapSize = m_pTiledMap->getMapSize();
+    int32 x, y;
+    int32 cost = 3000;
+    int32 lcost = 0;
+    int32 lx;
+    int32 ly;
     while(n->m_parent)
     {
+      lx = n->m_parent->m_x;
+      ly = n->m_parent->m_y;
+
+      x = n->m_x + 1;
+      y = n->m_y;
+      
+      if(n->m_x < (mapSize.x - 1))
+      {
+        cost = visitAdjacent(n->m_x, n->m_y, x, y);
+        if(cost > 0 && cost > lcost)
+        {
+          lcost = cost;
+          lx = x;
+          ly = y;
+        }
+      }
+      
+      x = n->m_x + 1;
+      y = n->m_y + 1;
+      if(n->m_x < (mapSize.x - 1) && n->m_y < (mapSize.y - 1))
+      {
+        cost = visitAdjacent(n->m_x, n->m_y, x, y);
+        if(cost > 0 && cost > lcost)
+        {
+          lcost = cost;
+          lx = x;
+          ly = y;
+        }
+      }
+      
+      x = n->m_x;
+      y = n->m_y + 1;
+      if(n->m_y < (mapSize.y - 1))
+      {
+        cost = visitAdjacent(n->m_x, n->m_y, x, y);
+        if(cost > 0 && cost > lcost)
+        {
+          lcost = cost;
+          lx = x;
+          ly = y;
+        }
+      }
+      
+      x = n->m_x - 1;
+      y = n->m_y + 1;
+      if(n->m_x > 0 && n->m_y < (mapSize.y - 1))
+      {
+        cost = visitAdjacent(n->m_x, n->m_y, x, y);
+        if(cost > 0 && cost > lcost)
+        {
+          lcost = cost;
+          lx = x;
+          ly = y;
+        }
+      }
+      
+      x = n->m_x - 1;
+      y = n->m_y;
+      if(n->m_x > 0)
+      {
+        cost = visitAdjacent(n->m_x, n->m_y, x, y);
+        if(cost > 0 && cost >> lcost)
+        {
+          lcost = cost;
+          lx = x;
+          ly = y;
+        }
+      }
+      
+      x = n->m_x - 1;
+      y = n->m_y - 1;
+      if(n->m_x > 0 && n->m_y > 0)
+      {
+        cost = visitAdjacent(n->m_x, n->m_y, x, y);
+        if(cost > 0 && cost > lcost)
+        {
+          lcost = cost;
+          lx = x;
+          ly = y;
+        }
+      }
+      
+      x = n->m_x;
+      y = n->m_y - 1;
+      if(n->m_y > 0)
+      {
+        cost = visitAdjacent(n->m_x, n->m_y, x, y);
+        if(cost > 0 && cost > lcost)
+        {
+          lcost = cost;
+          lx = x;
+          ly = y;
+        }
+      }
+      
+      x = n->m_x + 1;
+      y = n->m_y - 1;
+      if(n->m_x < (mapSize.x - 1) && n->m_y>0)
+      {
+        cost = visitAdjacent(n->m_x, n->m_y, x, y);
+        if(cost > 0 && cost > lcost)
+        {
+          lcost = cost;
+          lx = x;
+          ly = y;
+        }
+      }
+
       m_pTiledMap->getMapToScreenCoords(n->m_x, n->m_y, tempX, tempY);
       m_FastestPath.append(sf::Vertex(sf::Vector2f(tempX + TILESIZE_X / 2, tempY + TILESIZE_Y / 2)));
+
+      reparentNode(n, &m_TileGrid[lx][ly]);
+
       n = n->m_parent;
     }
     n = m_Visited.front();
@@ -229,15 +397,32 @@ void RTSDijkstraMapGridWalker::priorityQueue(int32 x, int32 y)
     if(m_N->m_cost < (*it)->m_cost)
     {
       m_Open.insert(it, &m_TileGrid[x][y]);
+      RTSMapTileNode* n = &m_TileGrid[x][y];
+      int32 cost = n->m_cost;
       m_TileGrid[x][y].m_parent = m_N;
-      m_TileGrid[x][y].m_cost += m_TileGrid[x][y].m_parent->m_cost;
+      while(n->m_parent!=nullptr)
+      {
+        cost += n->m_parent->m_cost;
+        n = n->m_parent;
+      }
+      m_TileGrid[x][y].m_parent = m_N;
+      m_TileGrid[x][y].m_cost = cost;
       m_Open.unique();
       return;
     }
   }
   m_Open.push_back(&m_TileGrid[x][y]);
   m_TileGrid[x][y].m_parent = m_N;
-  m_TileGrid[x][y].m_cost += m_TileGrid[x][y].m_parent->m_cost;
+  RTSMapTileNode* n = &m_TileGrid[x][y];
+  int32 cost = n->m_cost;
+  m_TileGrid[x][y].m_parent = m_N;
+  while(n->m_parent != nullptr)
+  {
+    cost += n->m_parent->m_cost;
+    n = n->m_parent;
+  }
+  m_TileGrid[x][y].m_parent = m_N;
+  m_TileGrid[x][y].m_cost = cost;
   m_Open.unique();
 }
 
@@ -267,6 +452,7 @@ void RTSDijkstraMapGridWalker::reset()
       {
         m_TileGrid[i][j].m_parent = nullptr;
       }
+      m_TileGrid[i][j].setCost(m_pTiledMap->getCost(i, j) + 1);
     }
   }
 

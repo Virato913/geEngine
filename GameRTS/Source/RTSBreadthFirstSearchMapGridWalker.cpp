@@ -190,13 +190,46 @@ void RTSBreadthFirstSearchMapGridWalker::visitGridNode(int32 x, int32 y)
   //  m_TileGrid[x + m_pTiledMap->getMapSize().y * y]->m_parent = m_N;
   //  m_Open.unique();
   //}
-  if((m_pTiledMap->getCost(x, y) != 3 && !m_TileGrid[x][y].getVisited()) &&
-     !m_TileGrid[x][y].m_parent)
+  if((m_pTiledMap->getType(x, y) != TERRAIN_TYPE::kObstacle && !m_TileGrid[x][y].getVisited()))
   {
-    m_Open.push_front(&m_TileGrid[x][y]);
+    if(!existsInList(&m_TileGrid[x][y], m_Open))
+    {
+      m_Open.push_front(&m_TileGrid[x][y]);
+    }
     m_TileGrid[x][y].m_parent = m_N;
-    m_Open.unique();
   }
+}
+
+template<typename T>
+bool RTSBreadthFirstSearchMapGridWalker::existsInList(RTSMapTileNode* n, T list)
+{
+  for(auto it = list.begin(); it != list.end(); it++)
+  {
+    if(n->Equals(*(*it)))
+    {
+      return true;
+    }
+  }
+  return false;
+}
+
+void RTSBreadthFirstSearchMapGridWalker::visitAdjacent(int32 _x, int32 _y, int32 x, int32 y)
+{
+  if(existsInList(&m_TileGrid[x][y], m_Visited))
+  {
+    Vector2I end(m_TileGrid[_x][_y].m_x, m_TileGrid[_x][_y].m_y),
+      parent(m_TileGrid[_x][_y].m_parent->m_x, m_TileGrid[_x][_y].m_parent->m_y),
+      adjacent(m_TileGrid[x][y].m_x, m_TileGrid[x][y].m_y);
+    if((end - adjacent).size() < (end - parent).size())
+    {
+      reparentNode(&m_TileGrid[_x][_y], &m_TileGrid[x][y]);
+    }
+  }
+}
+
+void RTSBreadthFirstSearchMapGridWalker::reparentNode(RTSMapTileNode* n, RTSMapTileNode* parent)
+{
+  n->setParent(parent);
 }
 
 void RTSBreadthFirstSearchMapGridWalker::traceback()
@@ -207,8 +240,66 @@ void RTSBreadthFirstSearchMapGridWalker::traceback()
   if(m_Visited.size() > 0)
   {
     RTSMapTileNode* n = m_Visited.back();
+    //Vector2I mapSize = m_pTiledMap->getMapSize();
+    //int32 x, y;
     while(n->m_parent)
     {
+      //x = n->m_x + 1;
+      //y = n->m_y;
+      //if(n->m_x < (mapSize.x - 1))
+      //{
+      //  visitAdjacent(n->m_x, n->m_y, x, y);
+      //}
+      //
+      //x = n->m_x + 1;
+      //y = n->m_y + 1;
+      //if(n->m_x < (mapSize.x - 1) && n->m_y < (mapSize.y - 1))
+      //{
+      //  visitAdjacent(n->m_x, n->m_y, x, y);
+      //}
+      //
+      //x = n->m_x;
+      //y = n->m_y + 1;
+      //if(n->m_y < (mapSize.y - 1))
+      //{
+      //  visitAdjacent(n->m_x, n->m_y, x, y);
+      //}
+      //
+      //x = n->m_x - 1;
+      //y = n->m_y + 1;
+      //if(n->m_x > 0 && n->m_y < (mapSize.y - 1))
+      //{
+      //  visitAdjacent(n->m_x, n->m_y, x, y);
+      //}
+      //
+      //x = n->m_x - 1;
+      //y = n->m_y;
+      //if(n->m_x > 0)
+      //{
+      //  visitAdjacent(n->m_x, n->m_y, x, y);
+      //}
+      //
+      //x = n->m_x - 1;
+      //y = n->m_y - 1;
+      //if(n->m_x > 0 && n->m_y > 0)
+      //{
+      //  visitAdjacent(n->m_x, n->m_y, x, y);
+      //}
+      //
+      //x = n->m_x;
+      //y = n->m_y - 1;
+      //if(n->m_y > 0)
+      //{
+      //  visitAdjacent(n->m_x, n->m_y, x, y);
+      //}
+      //
+      //x = n->m_x + 1;
+      //y = n->m_y - 1;
+      //if(n->m_x < (mapSize.x - 1) && n->m_y>0)
+      //{
+      //  visitAdjacent(n->m_x, n->m_y, x, y);
+      //}
+
       m_pTiledMap->getMapToScreenCoords(n->m_x, n->m_y, tempX, tempY);
       m_FastestPath.append(sf::Vertex(sf::Vector2f(tempX + TILESIZE_X / 2, tempY + TILESIZE_Y / 2)));
       n = n->m_parent;

@@ -43,9 +43,13 @@ RTSWorld::init(sf::RenderTarget* pTarget) {
   //Set the first walker as the active walker
   setCurrentWalker(m_walkersList.size() > 0 ? 0 : -1);
 
+  m_lstUnitTypes.push_back(ge_new<RTSGame::RTSUnitType>());
+  m_lstUnitTypes.push_back(ge_new<RTSGame::RTSUnitType>());
+  m_lstUnitTypes.push_back(ge_new<RTSGame::RTSUnitType>());
 
-  RTSGame::RTSUnitType unitTypes;
-  unitTypes.loadAnimationData(m_pTarget, 1);
+  for(uint32 i = 0; i < m_lstUnitTypes.size(); ++i) {
+    m_lstUnitTypes[i]->loadAnimationData(m_pTarget, i + 1);
+  }
 
   return true;
 }
@@ -74,7 +78,7 @@ RTSWorld::update(float deltaTime) {
   m_pTiledMap->update(deltaTime);
   if(!GameOptions::s_ReachedGoal)
   {
-    if(m_activeWalker->update() == WALK_STATE::kReachedGoal)
+    if(m_activeWalker->update() != WALK_STATE::kStillLooking)
     {
       GameOptions::s_ReachedGoal = true;
     }

@@ -31,6 +31,11 @@ protected:
   virtual void visitGridNode(int32 x, int32 y);
 
 private:
+  template<typename T>
+  bool existsInList(RTSMapTileNode* n, T list);
+  void visitAdjacent(int32 _x, int32 _y, int32 x, int32 y);
+  void reparentNode(RTSMapTileNode* n, RTSMapTileNode* parent);
+
   List<RTSMapTileNode*> m_Open;
   Vector<RTSMapTileNode*> m_Visited;
   RTSMapTileNode* m_Start;
