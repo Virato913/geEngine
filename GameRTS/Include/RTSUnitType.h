@@ -3,8 +3,12 @@
 #include <geBox2D.h>
 #include "RTSTexture.h"
 
+class RTSTiledMap;
+
 namespace RTSGame {
   using geEngineSDK::Box2D;
+
+  class RTSUnit;
 
   namespace ANIMATIONS {
     enum E {
@@ -56,18 +60,19 @@ namespace RTSGame {
      static RTSUnitType*
      loadFromFile(uint32 idUnitType);
 
-     
-
      void
      loadAnimationData(sf::RenderTarget* pTarget, uint32 idUnitType);
 
-   private:
+     RTSUnit*
+     createUnit(RTSTiledMap* tiledMap);
+
+   //private:
      uint32 m_id;
      String m_name;
      bool m_texLoaded;
 
      Vector<Animation> m_animationFrames;
-     RTSTexture m_texture;
+     RTSTexture* m_texture;
      sf::RenderTarget* m_pTarget;
   };
 }

@@ -12,6 +12,16 @@ class RTSMapGridWalker;
 
 namespace RTSGame {
   class RTSUnitType;
+  class RTSUnit;
+}
+
+namespace UNIT_TYPE {
+  enum E {
+    kArcher = 0,
+    kCastilianKnight,
+    kCrossbow,
+    kNumTypes
+  };
 }
 
 class RTSWorld
@@ -44,16 +54,22 @@ class RTSWorld
   void
   setCurrentWalker(const int8 index);
 
-  void setPathStart(float x, float y);
+  void
+  setPathStart(float x, float y);
 
-  void setPathEnd(float x, float y);
+  void
+  setPathEnd(float x, float y);
   
-  void startPathFinding();
+  void
+  startPathFinding();
+
+  void
+  createUnit(UNIT_TYPE::E type, float x, float y);
 
  private:
   RTSTiledMap* m_pTiledMap;
   Vector<RTSGame::RTSUnitType*> m_lstUnitTypes;
-  //List<RTSUnit*> m_lstUnits;
+  List<RTSGame::RTSUnit*> m_lstUnits;
   
   Vector<RTSMapGridWalker*> m_walkersList;
   //Vector<void*> m_walkersList;

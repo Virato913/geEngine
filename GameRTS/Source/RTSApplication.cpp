@@ -128,8 +128,8 @@ RTSApplication::gameLoop() {
         m_window->close();
       }
       if(sf::Mouse::isButtonPressed(sf::Mouse::Left) &&
-                  !ImGui::IsMouseHoveringAnyWindow() &&
-                  !ImGui::IsAnyWindowFocused())
+         !ImGui::IsMouseHoveringAnyWindow() &&
+         !ImGui::IsAnyWindowFocused())
       {
         int32 _x = 0;
         int32 _y = 0;
@@ -139,18 +139,18 @@ RTSApplication::gameLoop() {
         if(GameOptions::s_Terrain >= 0)
         {
           for(int32 i = _x - (GameOptions::s_BrushSize - 1) - 1;
-            i < _x + (GameOptions::s_BrushSize - 1);
-            i++)
+              i < _x + (GameOptions::s_BrushSize - 1);
+              i++)
           {
             for(int32 j = _y - (GameOptions::s_BrushSize - 1) - 1;
-              j < _y + (GameOptions::s_BrushSize - 1);
-              j++)
+                j < _y + (GameOptions::s_BrushSize - 1);
+                j++)
             {
               if((i >= -1 && i < map->getMapSize().x - 1) &&
                 (j >= -1 && j < map->getMapSize().x - 1))
               {
-                  map->setType(i + 1, j + 1, GameOptions::s_Terrain);
-                  map->setCost(i + 1, j + 1, GameOptions::s_Terrain);
+                map->setType(i + 1, j + 1, GameOptions::s_Terrain);
+                map->setCost(i + 1, j + 1, GameOptions::s_Terrain);
               }
             }
           }
@@ -169,9 +169,16 @@ RTSApplication::gameLoop() {
             m_gameWorld.setPathEnd(_x, _y);
           }
         }
+        if(GameOptions::s_UnitType >= 0) {
+          if(event.type == sf::Event::MouseButtonPressed) {
+            if(event.mouseButton.button == sf::Mouse::Button::Left)
+              m_gameWorld.createUnit(static_cast<UNIT_TYPE::E>(GameOptions::s_UnitType),
+                                     _x,
+                                     _y);
+          }
+        }
       }
-      if(sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Space))
-      {
+      if(sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Space)) {
         GameOptions::s_ReachedGoal = false;
         m_gameWorld.startPathFinding();
       }
@@ -345,39 +352,38 @@ mainMenu(RTSApplication* pApp) {
     ImGui::EndMainMenuBar();
   }
 
-  ImGui::Begin("Game Options", 0, ImGuiWindowFlags_AlwaysAutoResize |
-                                  ImGuiWindowFlags_NoResize);
-  {
+  ImGui::Begin("Game Options",
+               0,
+               ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoResize); {
     ImGui::Text("Framerate: %f", pApp->getFPS());
 
     ImGui::SliderFloat("Map movement speed X",
-      &GameOptions::s_MapMovementSpeed.x,
-      0.0f,
-      10240.0f);
+                       &GameOptions::s_MapMovementSpeed.x,
+                       0.0f,
+                       10240.0f);
     ImGui::SliderFloat("Map movement speed Y",
-      &GameOptions::s_MapMovementSpeed.y,
-      0.0f,
-      10240.0f);
+                       &GameOptions::s_MapMovementSpeed.y,
+                       0.0f,
+                       10240.0f);
 
     ImGui::Checkbox("Show grid", &GameOptions::s_MapShowGrid);
 
-    if(ImGui::Checkbox("Terrain Editor", &GameOptions::s_Editor))
-    {
+    if(ImGui::Checkbox("Terrain Editor", &GameOptions::s_Editor)) {
       GameOptions::s_PathFinder = false;
     }
 
-    if(ImGui::Checkbox("Path Finder", &GameOptions::s_PathFinder))
-    {
+    if(ImGui::Checkbox("Path Finder", &GameOptions::s_PathFinder)) {
       GameOptions::s_Editor = false;
     }
+
+    ImGui::Checkbox("Unit Editor", &GameOptions::s_UnitMenu);
   }
   ImGui::End();
 
-  if(GameOptions::s_Editor)
-  {
-    ImGui::Begin("Terrain Editor", 0, ImGuiWindowFlags_AlwaysAutoResize |
-                                      ImGuiWindowFlags_NoResize);
-    {
+  if(GameOptions::s_Editor) {
+    ImGui::Begin("Terrain Editor",
+                 0,
+                 ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoResize); {
       ImGui::SliderInt("Brush Size", &GameOptions::s_BrushSize, 1, 10);
       ImGui::RadioButton("Water", &GameOptions::s_Terrain, 0);
       ImGui::RadioButton("Grass", &GameOptions::s_Terrain, 1);
@@ -386,16 +392,14 @@ mainMenu(RTSApplication* pApp) {
     }
     ImGui::End();
   }
-  else
-  {
+  else {
     GameOptions::s_Terrain = -1;
   }
 
-  if(GameOptions::s_PathFinder)
-  {
-    ImGui::Begin("Path Finder", 0, ImGuiWindowFlags_AlwaysAutoResize |
-                 ImGuiWindowFlags_NoResize);
-    {
+  if(GameOptions::s_PathFinder) {
+    ImGui::Begin("Path Finder",
+                 0,
+                 ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoResize); {
       ImGui::RadioButton("Start", &GameOptions::s_PathState, 0);
       ImGui::RadioButton("End", &GameOptions::s_PathState, 1);
       ImGui::Separator();
@@ -406,8 +410,18 @@ mainMenu(RTSApplication* pApp) {
     }
     ImGui::End();
   }
-  else
-  {
+  else {
     GameOptions::s_PathState = -1;
+  }
+
+  if(GameOptions::s_UnitMenu) {
+    ImGui::Begin("Unit Editor",
+                 0,
+                 ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoResize); {
+      ImGui::RadioButton("Archer", &GameOptions::s_UnitType, 0);
+      ImGui::RadioButton("Castilian Knight", &GameOptions::s_UnitType, 1);
+      ImGui::RadioButton("Crossbow", &GameOptions::s_UnitType, 2);
+    }
+    ImGui::End();
   }
 }

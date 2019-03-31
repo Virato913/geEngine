@@ -3,14 +3,21 @@
 #include <geDataStream.h>
 #include <Externals/json.hpp>
 #include "RTSUnitType.h"
+#include "RTSUnit.h"
 
 using namespace geEngineSDK;
 using nlohmann::json;
 
 namespace RTSGame {
-  RTSUnitType::RTSUnitType() : m_texLoaded(false) {}
+  RTSUnitType::RTSUnitType() : m_texLoaded(false) {
+    m_texture = ge_new<RTSTexture>();
+  }
 
-  RTSUnitType::~RTSUnitType() {}
+  RTSUnitType::~RTSUnitType() {
+    if(m_texture != nullptr) {
+      ge_delete(m_texture);
+    }
+  }
 
   void
   RTSUnitType::loadAnimationData(sf::RenderTarget* pTarget, uint32 idUnitType) {
@@ -100,8 +107,13 @@ namespace RTSGame {
     //Load the texture for this unit type
     m_pTarget = pTarget;
     if(!m_texLoaded) {
-      m_texture.loadFromFile(pTarget, filePath.toString() + "units.png");
+      m_texture->loadFromFile(pTarget, filePath.toString() + "units.png");
       m_texLoaded = true;
     }
+  }
+
+  RTSGame::RTSUnit*
+  RTSUnitType::createUnit(RTSTiledMap* tiledMap) {
+    return ge_new<RTSGame::RTSUnit>(m_animationFrames, m_texture, tiledMap);
   }
 }

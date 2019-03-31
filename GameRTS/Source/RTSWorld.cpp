@@ -2,6 +2,7 @@
 #include "RTSTiledMap.h"
 
 #include "RTSUnitType.h"
+#include "RTSUnit.h"
 #include "RTSDepthFirstSearchMapGridWalker.h"
 #include "RTSBreadthFirstSearchMapGridWalker.h"
 #include "RTSBestFirstSearchMapGridWalker.h"
@@ -51,6 +52,9 @@ RTSWorld::init(sf::RenderTarget* pTarget) {
     m_lstUnitTypes[i]->loadAnimationData(m_pTarget, i + 1);
   }
 
+  //m_lstUnits.push_back(ge_new<RTSGame::RTSUnit>(m_lstUnitTypes[0]->m_animationFrames,
+  //                                              m_lstUnitTypes[0]->m_texture));
+
   return true;
 }
 
@@ -63,6 +67,24 @@ RTSWorld::destroy() {
       ge_delete(m_walkersList.back());
     }
     m_walkersList.pop_back();
+  }
+
+  while(m_lstUnits.size()>0)
+  {
+    if(m_lstUnits.back())
+    {
+      ge_delete(m_lstUnits.back());
+    }
+    m_lstUnits.pop_back();
+  }
+
+  while(m_lstUnitTypes.size()>0)
+  {
+    if (m_lstUnitTypes.back())
+    {
+      ge_delete(m_lstUnitTypes.back());
+    }
+    m_lstUnitTypes.pop_back();
   }
 
   //As the last step, destroy the full map
@@ -87,6 +109,10 @@ RTSWorld::update(float deltaTime) {
   {
     m_activeWalker->traceback();
   }
+  for (auto it = m_lstUnits.begin();it!=m_lstUnits.end();++it)
+  {
+    (*it)->update(deltaTime);
+  }
 }
 
 void
@@ -97,6 +123,9 @@ RTSWorld::render() {
     m_activeWalker->render();
   }
   m_pTiledMap->renderPathFinding();
+  for(auto it = m_lstUnits.begin(); it != m_lstUnits.end(); ++it) {
+    (*it)->draw();
+  }
 }
 
 void
@@ -121,16 +150,17 @@ RTSWorld::setCurrentWalker(const int8 index) {
   m_activeWalkerIndex = index;
 }
 
-void RTSWorld::setPathStart(float x, float y)
+void
+RTSWorld::setPathStart(float x, float y)
 {
   for(SIZE_T it = 0; it < m_walkersList.size(); ++it) {
-    m_walkersList[it]->setStartPosition(x, y);
     m_walkersList[it]->setStartPosition(x, y);
   }
   m_pTiledMap->setPathStart(x, y);
 }
 
-void RTSWorld::setPathEnd(float x, float y)
+void
+RTSWorld::setPathEnd(float x, float y)
 {
   for(SIZE_T it = 0; it < m_walkersList.size(); ++it) {
     m_walkersList[it]->setEndPosition(x, y);
@@ -142,4 +172,11 @@ void RTSWorld::setPathEnd(float x, float y)
 void RTSWorld::startPathFinding()
 {
   m_activeWalker->reset();
+}
+
+void
+RTSWorld::createUnit(UNIT_TYPE::E type, float x, float y) {
+  RTSGame::RTSUnit* newUnit = m_lstUnitTypes[type]->createUnit(m_pTiledMap);
+  newUnit->setPosition(x, y);
+  m_lstUnits.push_back(newUnit);
 }

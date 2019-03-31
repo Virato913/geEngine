@@ -9,10 +9,12 @@ Color GameOptions::s_MapGridColor = Color(255, 0, 0, 255);
 bool GameOptions::s_Editor = false;
 bool GameOptions::s_PathFinder = false;
 bool GameOptions::s_ReachedGoal = false;
+bool GameOptions::s_UnitMenu = false;
 int32 GameOptions::s_Terrain = -1;
 int32 GameOptions::s_PathState = 1;
 int32 GameOptions::s_Walker = 1;
 int32 GameOptions::s_BrushSize = 1;
+int32 GameOptions::s_UnitType = -1;
 
 const Vector2I
 GameOptions::TILEHALFSIZE = Vector2I(TILESIZE_X >> 1, TILESIZE_Y >> 1);
