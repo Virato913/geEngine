@@ -28,19 +28,31 @@ namespace RTSGame {
   }
 
   class RTSUnit {
+   private:
+     class SelectedCircle {
+      public:
+       SelectedCircle(sf::RenderTarget* target);
+       ~SelectedCircle();
+
+       void
+       setOrigin(float x, float y);
+
+       void
+       setPosition(float x, float y);
+
+       void
+       draw();
+
+      private:
+       sf::CircleShape m_shape;
+       sf::RenderTarget* m_pTarget;
+     };
+
    public:
      RTSUnit(const Vector<Animation> animationFrames,
              RTSTexture* texture,
-             RTSTiledMap* tiledMap) :
-       m_animationFrames(animationFrames) {
-       m_texture = texture;
-       m_pTiledMap = tiledMap;
-       m_state = STATE::kIDLE;
-       m_direction = DIRECTION::kN;
-       m_texture->setPosition(100, 100);
-       m_frameCount = 0;
-       m_elapsedTime = 0;
-     }
+             RTSTiledMap* tiledMap,
+             sf::RenderTarget* target);
 
      ~RTSUnit();
 
@@ -50,6 +62,12 @@ namespace RTSGame {
      draw();
      void
      setPosition(float x, float y);
+     void
+     makeSelected(const bool isSelected);
+     Vector2
+     getPosition();
+     void
+     getPosition(float& x, float& y);
 
    private:
      Vector<Animation> m_animationFrames;
@@ -60,5 +78,7 @@ namespace RTSGame {
      int32 m_frameCount;
      float m_elapsedTime;
      Vector2 m_position;
+     bool m_bSelected;
+     SelectedCircle m_circle;
  };
 }

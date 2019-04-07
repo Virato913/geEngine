@@ -114,6 +114,6 @@ namespace RTSGame {
 
   RTSGame::RTSUnit*
   RTSUnitType::createUnit(RTSTiledMap* tiledMap) {
-    return ge_new<RTSGame::RTSUnit>(m_animationFrames, m_texture, tiledMap);
+    return ge_new<RTSGame::RTSUnit>(m_animationFrames, m_texture, tiledMap, m_pTarget);
   }
 }

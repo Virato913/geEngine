@@ -66,10 +66,13 @@ class RTSWorld
   void
   createUnit(UNIT_TYPE::E type, float x, float y);
 
+  Vector<RTSGame::RTSUnit*>
+  getUnits();
+
  private:
   RTSTiledMap* m_pTiledMap;
   Vector<RTSGame::RTSUnitType*> m_lstUnitTypes;
-  List<RTSGame::RTSUnit*> m_lstUnits;
+  Vector<RTSGame::RTSUnit*> m_lstUnits;
   
   Vector<RTSMapGridWalker*> m_walkersList;
   //Vector<void*> m_walkersList;

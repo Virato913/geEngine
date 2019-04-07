@@ -180,3 +180,8 @@ RTSWorld::createUnit(UNIT_TYPE::E type, float x, float y) {
   newUnit->setPosition(x, y);
   m_lstUnits.push_back(newUnit);
 }
+
+geEngineSDK::Vector<RTSGame::RTSUnit*>
+RTSWorld::getUnits() {
+  return m_lstUnits;
+}

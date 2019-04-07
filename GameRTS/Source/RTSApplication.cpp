@@ -23,6 +23,7 @@
 #include "RTSConfig.h"
 #include "RTSApplication.h"
 #include "RTSTiledMap.h"
+#include "RTSUnit.h"
 
 void
 loadMapFromFile(RTSApplication* pApp);
@@ -34,7 +35,8 @@ RTSApplication::RTSApplication()
   : m_window(nullptr),
     m_fpsTimer(0.0f),
     m_fpsCounter(0.0f),
-    m_framesPerSecond(0.0f)
+    m_framesPerSecond(0.0f),
+    m_square(m_window)
 {}
 
 RTSApplication::~RTSApplication() {}
@@ -77,6 +79,8 @@ RTSApplication::initSystems() {
   if (nullptr == m_window) {
     GE_EXCEPT(InvalidStateException, "Couldn't create Application Window");
   }
+
+  m_square.setRenderTarget(m_window);
 
   m_arialFont = ge_new<sf::Font>();
   if (nullptr == m_arialFont) {
@@ -129,52 +133,65 @@ RTSApplication::gameLoop() {
       }
       if(sf::Mouse::isButtonPressed(sf::Mouse::Left) &&
          !ImGui::IsMouseHoveringAnyWindow() &&
-         !ImGui::IsAnyWindowFocused())
-      {
+         !ImGui::IsAnyWindowFocused()) {
         int32 _x = 0;
         int32 _y = 0;
         auto map = m_gameWorld.getTiledMap();
         sf::Vector2i mousePos = sf::Mouse::getPosition();
         map->getScreenToMapCoords(mousePos.x, mousePos.y, _x, _y);
-        if(GameOptions::s_Terrain >= 0)
-        {
+        if(GameOptions::s_Terrain >= 0) {
           for(int32 i = _x - (GameOptions::s_BrushSize - 1) - 1;
               i < _x + (GameOptions::s_BrushSize - 1);
-              i++)
-          {
+              i++) {
             for(int32 j = _y - (GameOptions::s_BrushSize - 1) - 1;
                 j < _y + (GameOptions::s_BrushSize - 1);
-                j++)
-            {
+                j++) {
               if((i >= -1 && i < map->getMapSize().x - 1) &&
-                (j >= -1 && j < map->getMapSize().x - 1))
-              {
-                map->setType(i + 1, j + 1, GameOptions::s_Terrain);
-                map->setCost(i + 1, j + 1, GameOptions::s_Terrain);
+                (j >= -1 && j < map->getMapSize().x - 1)) {
+                map->setType(i + 1, j + 1, static_cast<int8>(GameOptions::s_Terrain));
+                map->setCost(i + 1, j + 1, static_cast<int8>(GameOptions::s_Terrain));
               }
             }
           }
         }
-        if(GameOptions::s_PathState >= 0)
-        {
-          //TODO: Set start and end tiles
-          if(GameOptions::s_PathState == 0)
-          {
-            //TODO: Set start
-            m_gameWorld.setPathStart(_x, _y);
+        if(GameOptions::s_PathState >= 0) {
+          if(GameOptions::s_PathState == 0) {
+            m_gameWorld.setPathStart(static_cast<float>(_x), static_cast<float>(_y));
           }
-          if(GameOptions::s_PathState == 1)
-          {
-            //TODO: Set end
-            m_gameWorld.setPathEnd(_x, _y);
+          if(GameOptions::s_PathState == 1) {
+            m_gameWorld.setPathEnd(static_cast<float>(_x), static_cast<float>(_y));
           }
         }
         if(GameOptions::s_UnitType >= 0) {
           if(event.type == sf::Event::MouseButtonPressed) {
             if(event.mouseButton.button == sf::Mouse::Button::Left)
               m_gameWorld.createUnit(static_cast<UNIT_TYPE::E>(GameOptions::s_UnitType),
-                                     _x,
-                                     _y);
+                                     static_cast<float>(_x),
+                                     static_cast<float>(_y));
+          }
+        }
+      }
+      if(sf::Mouse::isButtonPressed(sf::Mouse::Right)) {
+        m_square.setSecondPos(sf::Mouse::getPosition().x, sf::Mouse::getPosition().y);
+        if(event.type == sf::Event::MouseButtonPressed) {
+          if(event.mouseButton.button == sf::Mouse::Button::Right) {
+            m_square.setFirstPos(sf::Mouse::getPosition().x, sf::Mouse::getPosition().y);
+          }
+        }
+        Vector<RTSGame::RTSUnit*> units = m_gameWorld.getUnits();
+        RTSTiledMap* map = m_gameWorld.getTiledMap();
+        int32 x = 0;
+        int32 y = 0;
+        for(auto& it : units) {
+          map->getMapToScreenCoords(static_cast<int32>(it->getPosition().x),
+                                    static_cast<int32>(it->getPosition().y),
+                                    x,
+                                    y);
+          if(m_square.isWithin(x, y)) {
+            it->makeSelected(true);
+          }
+          else {
+            it->makeSelected(false);
           }
         }
       }
@@ -269,6 +286,10 @@ RTSApplication::renderFrame() {
 
   m_gameWorld.render();
 
+  if(sf::Mouse::isButtonPressed(sf::Mouse::Right)) {
+    m_square.draw();
+  }
+ 
   ImGui::SFML::Render(*m_window);
 
   /*
@@ -280,6 +301,7 @@ RTSApplication::renderFrame() {
   text.setString( toString(1.0f/g_time().getFrameDelta()).c_str() );
   m_window->draw(text);
   */
+
   m_window->display();
 }
 
@@ -424,4 +446,86 @@ mainMenu(RTSApplication* pApp) {
     }
     ImGui::End();
   }
+}
+
+RTSApplication::SelectionSquare::SelectionSquare(sf::RenderTarget* target) :
+  m_pTarget(target) {
+  m_FirstPos = new sf::Vector2i();
+  m_SecondPos = new sf::Vector2i();
+  m_shape = ge_new<sf::RectangleShape>();
+  m_shape->setOutlineThickness(1);
+  m_shape->setFillColor(sf::Color::Transparent);
+}
+
+RTSApplication::SelectionSquare::~SelectionSquare() {
+  ge_delete(m_shape);
+  ge_delete(m_FirstPos);
+  ge_delete(m_SecondPos);
+}
+
+void RTSApplication::SelectionSquare::draw() {
+  m_pTarget->draw(*m_shape);
+}
+
+void
+RTSApplication::SelectionSquare::setRenderTarget(sf::RenderTarget* target) {
+  m_pTarget = target;
+}
+
+void RTSApplication::SelectionSquare::setOrigin(float x, float y) {
+  m_shape->setOrigin(sf::Vector2f(x, y));
+}
+
+void
+RTSApplication::SelectionSquare::setFirstPos(int32 x, int32 y) {
+  m_shape->setSize(sf::Vector2f(0,0));
+  m_FirstPos->x = x;
+  m_FirstPos->y = y;
+  m_shape->setPosition(static_cast<float>(m_FirstPos->x),
+                       static_cast<float>(m_FirstPos->y));
+}
+
+void
+RTSApplication::SelectionSquare::setSecondPos(int32 x, int32 y) {
+  m_SecondPos->x = x;
+  m_SecondPos->y = y;
+
+  sf::Vector2f size(static_cast<float>(abs(m_FirstPos->x - m_SecondPos->x)),
+                    static_cast<float>(abs(m_FirstPos->y - m_SecondPos->y)));
+
+  m_shape->setSize(size);
+
+  if((m_SecondPos->x < m_FirstPos->x) &&
+     (m_SecondPos->y < m_FirstPos->y)) {
+    m_shape->setPosition(static_cast<float>(m_SecondPos->x),
+                         static_cast<float>(m_SecondPos->y));
+  }
+  else if((m_SecondPos->x < m_FirstPos->x) &&
+     (m_SecondPos->y > m_FirstPos->y)) {
+    m_shape->setPosition(static_cast<float>(m_SecondPos->x),
+                         static_cast<float>(m_FirstPos->y));
+  
+  }
+  else if((m_SecondPos->x > m_FirstPos->x) &&
+          (m_SecondPos->y < m_FirstPos->y)) {
+    m_shape->setPosition(static_cast<float>(m_FirstPos->x),
+                         static_cast<float>(m_SecondPos->y));
+
+  }
+  else {
+    m_shape->setPosition(static_cast<float>(m_FirstPos->x),
+                         static_cast<float>(m_FirstPos->y));
+  }
+}
+
+bool
+RTSApplication::SelectionSquare::isWithin(int32 x, int32 y) {
+  if(x >= m_shape->getPosition().x &&
+     x <= (m_shape->getPosition().x + m_shape->getSize().x)) {
+    if(y >= m_shape->getPosition().y &&
+       y <= (m_shape->getPosition().y + m_shape->getSize().y)) {
+      return true;
+    }
+  }
+  return false;
 }
